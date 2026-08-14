@@ -9,7 +9,9 @@ app/build/
 app/.flutter-plugins
 app/.flutter-plugins-dependencies
 app/.packages
+app:.env
 
 # Rust
 server/target/
 server/Cargo.lock
+server/.env
