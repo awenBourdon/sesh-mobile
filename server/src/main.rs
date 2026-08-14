@@ -28,8 +28,8 @@ async fn main() {
         .await
         .expect("Impossible to connect to NeonDB");
 
-// Lancer automatiquement les migrations au démarrage du serveur
-// TODO : à supprimer une fois backend bien abouti
+    // Lancer automatiquement les migrations au démarrage du serveur
+    // TODO : à supprimer une fois backend bien abouti
     sqlx::migrate!("./migrations")
         .run(&pool)
         .await
