@@ -1,0 +1,15 @@
+# IDE / Outils
+.idea/
+*.iml
+.vscode/
+
+# Flutter / Dart
+app/.dart_tool/
+app/build/
+app/.flutter-plugins
+app/.flutter-plugins-dependencies
+app/.packages
+
+# Rust
+server/target/
+server/Cargo.lock
