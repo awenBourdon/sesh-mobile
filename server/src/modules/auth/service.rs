@@ -19,7 +19,7 @@ impl AuthService {
             r#"
             INSERT INTO users (email, username, password_hash)
             VALUES ($1, $2, $3)
-            RETURNING id, email, username, password_hash, created_at, updated_at
+            RETURNING id, email, username, password_hash, is_admin, created_at, updated_at
             "#,
         )
         .bind(dto.email.to_lowercase().trim())
@@ -37,6 +37,7 @@ impl AuthService {
             user_id: user.id,
             username: user.username,
             email: user.email,
+            is_admin: user.is_admin,
         })
     }
 
@@ -46,7 +47,7 @@ impl AuthService {
         dto: LoginDto,
     ) -> Result<AuthResponseDto, AppError> {
         let user = sqlx::query_as::<_, UserModel>(
-            "SELECT id, email, username, password_hash, created_at, updated_at FROM users WHERE email = $1",
+            "SELECT id, email, username, password_hash, is_admin, created_at, updated_at FROM users WHERE email = $1",
         )
         .bind(dto.email.to_lowercase().trim())
         .fetch_optional(pool)
@@ -68,6 +69,7 @@ impl AuthService {
             user_id: user.id,
             username: user.username,
             email: user.email,
+            is_admin: user.is_admin,
         })
     }
 }

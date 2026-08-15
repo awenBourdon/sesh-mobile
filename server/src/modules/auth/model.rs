@@ -10,6 +10,7 @@ pub struct UserModel {
     pub username: String,
     #[serde(skip_serializing)]
     pub password_hash: String,
+    pub is_admin: bool,
     pub created_at: Option<DateTime<Utc>>,
     pub updated_at: Option<DateTime<Utc>>,
 }
