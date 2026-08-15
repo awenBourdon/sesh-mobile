@@ -5,11 +5,23 @@ use axum::{
 };
 use serde_json::json;
 
+use std::fmt;
+
 #[derive(Debug)]
 pub enum AppError {
     BadRequest(String),
     Unauthorized(String),
     InternalServerError(String),
+}
+
+impl fmt::Display for AppError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            AppError::BadRequest(msg) => write!(f, "Bad Request: {}", msg),
+            AppError::Unauthorized(msg) => write!(f, "Unauthorized: {}", msg),
+            AppError::InternalServerError(msg) => write!(f, "Internal Server Error: {}", msg),
+        }
+    }
 }
 
 impl IntoResponse for AppError {

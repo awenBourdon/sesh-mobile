@@ -20,4 +20,5 @@ pub struct AuthResponseDto {
     pub user_id: Uuid,
     pub username: String,
     pub email: String,
+    pub is_admin: bool,
 }

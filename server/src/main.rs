@@ -2,18 +2,52 @@ mod config;
 mod core;
 mod modules;
 
-use axum::Router;
+use async_graphql::{EmptySubscription, MergedObject, Schema};
+use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
+use axum::{
+    Router,
+    extract::State,
+    response::{Html, IntoResponse},
+    routing::get,
+};
 use config::Config;
 use dotenvy::dotenv;
 use modules::auth::auth_routes;
+use modules::spots::resolver::{SpotsMutation, SpotsQuery};
 use sqlx::PgPool;
 use sqlx::postgres::PgPoolOptions;
 use std::sync::Arc;
 use tower_http::cors::{Any, CorsLayer};
 
+#[derive(MergedObject, Default)]
+pub struct QueryRoot(SpotsQuery);
+
+#[derive(MergedObject, Default)]
+pub struct MutationRoot(SpotsMutation);
+
+pub type AppSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
+
 pub struct AppState {
     pub pool: PgPool,
     pub config: Config,
+    pub schema: AppSchema,
+}
+
+async fn graphql_handler(
+    State(state): State<Arc<AppState>>,
+    req: GraphQLRequest,
+) -> GraphQLResponse {
+    state
+        .schema
+        .execute(req.into_inner().data(state.clone()))
+        .await
+        .into()
+}
+
+async fn graphql_playground() -> impl IntoResponse {
+    Html(async_graphql::http::playground_source(
+        async_graphql::http::GraphQLPlaygroundConfig::new("/graphql"),
+    ))
 }
 
 #[tokio::main]
@@ -28,8 +62,6 @@ async fn main() {
         .await
         .expect("Impossible to connect to NeonDB");
 
-    // Lancer automatiquement les migrations au démarrage du serveur
-    // TODO : à supprimer une fois backend bien abouti
     sqlx::migrate!("./migrations")
         .run(&pool)
         .await
@@ -37,9 +69,17 @@ async fn main() {
 
     println!("The connection is successful");
 
+    let schema = Schema::build(
+        QueryRoot::default(),
+        MutationRoot::default(),
+        EmptySubscription,
+    )
+    .finish();
+
     let app_state = Arc::new(AppState {
         pool,
         config: config.clone(),
+        schema,
     });
 
     let cors = CorsLayer::new()
@@ -49,13 +89,14 @@ async fn main() {
 
     let app = Router::new()
         .nest("/api/auth", auth_routes())
+        .route("/graphql", get(graphql_playground).post(graphql_handler))
         .layer(cors)
         .with_state(app_state);
 
     let bind_addr = format!("0.0.0.0:{}", config.port);
     let listener = tokio::net::TcpListener::bind(&bind_addr)
         .await
-        .expect("Unabnle to bind the adress");
+        .expect("Unable to bind the address");
 
     println!("Server currently running on port http://{}", bind_addr);
     axum::serve(listener, app).await.unwrap();

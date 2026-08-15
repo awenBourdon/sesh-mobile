@@ -14,6 +14,8 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>L'application a besoin d'accéder à votre position pour afficher les spots autour de vous sur la carte.</string>
 	<key>CFBundleName</key>
 	<string>app</string>
 	<key>CFBundlePackageType</key>

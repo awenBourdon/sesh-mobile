@@ -6,9 +6,15 @@ import '../core/constants.dart';
 class AuthService {
   static const _storage = FlutterSecureStorage();
   static const _tokenKey = 'jwt_token';
+  static const _isAdminKey = 'is_admin';
 
   static Future<String?> getToken() async {
     return await _storage.read(key: _tokenKey);
+  }
+
+  static Future<bool> isAdmin() async {
+    final isAdmin = await _storage.read(key: _isAdminKey);
+    return isAdmin == 'true';
   }
 
   static Future<bool> login(String email, String password) async {
@@ -26,6 +32,7 @@ class AuthService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         await _storage.write(key: _tokenKey, value: data['token']);
+        await _storage.write(key: _isAdminKey, value: data['is_admin'].toString());
         return true;
       }
       return false;
@@ -50,6 +57,7 @@ class AuthService {
       if (response.statusCode == 201) {
         final data = jsonDecode(response.body);
         await _storage.write(key: _tokenKey, value: data['token']);
+        await _storage.write(key: _isAdminKey, value: data['is_admin'].toString());
         return true;
       }
       return false;
@@ -60,5 +68,6 @@ class AuthService {
 
   static Future<void> logout() async {
     await _storage.delete(key: _tokenKey);
+    await _storage.delete(key: _isAdminKey);
   }
 }
