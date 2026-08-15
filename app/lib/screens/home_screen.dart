@@ -39,17 +39,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadSpots() async {
     try {
       final spots = await SpotService.fetchSpots();
-      print('${spots.length} spots récupérés depuis le serveur');
+      debugPrint('${spots.length} spots récupérés depuis le serveur');
       for (var i = 0; i < spots.length; i++) {
         final s = spots[i];
-        print('   [$i] "${s.name ?? "Sans nom"}" at [${s.latitude}, ${s.longitude}] (ID: ${s.id})');
+        debugPrint('   [$i] "${s.name ?? "Sans nom"}" at [${s.latitude}, ${s.longitude}] (ID: ${s.id})');
       }
       
       setState(() {
         _spots = spots;
       });
     } catch (e) {
-      print('❌ SESH_ERROR: Erreur lors du chargement des spots : $e');
+      debugPrint('❌ SESH_ERROR: Erreur lors du chargement des spots : $e');
     }
   }
 
@@ -214,8 +214,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               shape: BoxShape.circle,
                               gradient: RadialGradient(
                                 colors: [
-                                  Colors.blueAccent.withOpacity(0.8),
-                                  Colors.blueAccent.withOpacity(0.1),
+                                  Colors.blueAccent.withValues(alpha: 0.8),
+                                  Colors.blueAccent.withValues(alpha: 0.1),
                                   Colors.transparent,
                                 ],
                                 stops: const [0.2, 0.5, 1.0],
@@ -231,7 +231,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   border: Border.all(color: Colors.blueAccent, width: 2),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.blueAccent.withOpacity(0.5),
+                                      color: Colors.blueAccent.withValues(alpha: 0.5),
                                       blurRadius: 5,
                                       spreadRadius: 2,
                                     ),
@@ -296,7 +296,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.8),
+                        color: Colors.red.withValues(alpha: 0.8),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(

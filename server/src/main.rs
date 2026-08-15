@@ -37,7 +37,11 @@ async fn graphql_handler(
     State(state): State<Arc<AppState>>,
     req: GraphQLRequest,
 ) -> GraphQLResponse {
-    state.schema.execute(req.into_inner().data(state.clone())).await.into()
+    state
+        .schema
+        .execute(req.into_inner().data(state.clone()))
+        .await
+        .into()
 }
 
 async fn graphql_playground() -> impl IntoResponse {
@@ -65,8 +69,12 @@ async fn main() {
 
     println!("The connection is successful");
 
-    let schema = Schema::build(QueryRoot::default(), MutationRoot::default(), EmptySubscription)
-        .finish();
+    let schema = Schema::build(
+        QueryRoot::default(),
+        MutationRoot::default(),
+        EmptySubscription,
+    )
+    .finish();
 
     let app_state = Arc::new(AppState {
         pool,

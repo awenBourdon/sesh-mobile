@@ -7,10 +7,7 @@ use crate::core::errors::AppError;
 pub struct SpotService;
 
 impl SpotService {
-    pub async fn create_spot(
-        pool: &PgPool,
-        input: CreateSpotInput,
-    ) -> Result<SpotModel, AppError> {
+    pub async fn create_spot(pool: &PgPool, input: CreateSpotInput) -> Result<SpotModel, AppError> {
         let spot = sqlx::query_as::<_, SpotModel>(
             r#"
             INSERT INTO spots (name, latitude, longitude)
@@ -23,7 +20,9 @@ impl SpotService {
         .bind(input.longitude)
         .fetch_one(pool)
         .await
-        .map_err(|e| AppError::InternalServerError(format!("Error during the creation of the spot : {}", e)))?;
+        .map_err(|e| {
+            AppError::InternalServerError(format!("Error during the creation of the spot : {}", e))
+        })?;
 
         Ok(spot)
     }
