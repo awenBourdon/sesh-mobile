@@ -11,6 +11,7 @@ pub struct UserModel {
     #[serde(skip_serializing)]
     pub password_hash: String,
     pub is_admin: bool,
+    pub avatar_url: Option<String>,
     pub created_at: Option<DateTime<Utc>>,
     pub updated_at: Option<DateTime<Utc>>,
 }

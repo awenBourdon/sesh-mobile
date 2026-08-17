@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/auth_screen.dart';
-import 'screens/home_screen.dart';
+import 'screens/main_navigation.dart';
 import 'services/auth_service.dart';
 
 void main() {
@@ -60,7 +60,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
     }
 
     if (_isAuthenticated) {
-      return HomeScreen(
+      return MainNavigation(
         onLogout: () {
           setState(() {
             _isAuthenticated = false;

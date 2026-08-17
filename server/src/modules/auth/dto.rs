@@ -21,4 +21,5 @@ pub struct AuthResponseDto {
     pub username: String,
     pub email: String,
     pub is_admin: bool,
+    pub avatar_url: Option<String>,
 }
