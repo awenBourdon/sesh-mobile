@@ -1,6 +1,7 @@
 use axum::{
+    Form,
+    extract::State,
     response::{Html, IntoResponse, Redirect},
-    Form, extract::State,
 };
 use axum_extra::extract::cookie::{Cookie, CookieJar};
 use serde::Deserialize;
@@ -8,8 +9,8 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::AppState;
-use crate::modules::auth::service::AuthService;
 use crate::modules::auth::dto::LoginDto;
+use crate::modules::auth::service::AuthService;
 use crate::modules::tricks::service::TrickService;
 
 #[derive(Deserialize)]
@@ -24,10 +25,7 @@ pub struct TrickActionForm {
     pub action: String,
 }
 
-pub async fn login_page(
-    State(state): State<Arc<AppState>>,
-    jar: CookieJar,
-) -> impl IntoResponse {
+pub async fn login_page(State(state): State<Arc<AppState>>, jar: CookieJar) -> impl IntoResponse {
     // Si déjà connecté et admin, redirection vers le dashboard
     if let Some(cookie) = jar.get("admin_token") {
         if crate::core::security::decode_jwt(cookie.value(), &state.config.jwt_secret).is_ok() {
@@ -91,13 +89,13 @@ pub async fn login_handler(
                 Html("<h2>Accès refusé : Vous n'êtes pas administrateur</h2><a href='/admin/login'>Retour</a>").into_response()
             }
         }
-        Err(_) => Html("<h2>Identifiants invalides</h2><a href='/admin/login'>Retour</a>").into_response(),
+        Err(_) => {
+            Html("<h2>Identifiants invalides</h2><a href='/admin/login'>Retour</a>").into_response()
+        }
     }
 }
 
-pub async fn dashboard_page(
-    State(state): State<Arc<AppState>>,
-) -> impl IntoResponse {
+pub async fn dashboard_page(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let pending_tricks = match TrickService::get_pending_tricks(&state.pool).await {
         Ok(tricks) => tricks,
         Err(_) => Vec::new(),
@@ -131,7 +129,8 @@ pub async fn dashboard_page(
         }
     }
 
-    Html(format!(r#"
+    Html(format!(
+        r#"
         <!DOCTYPE html>
         <html>
         <head>
@@ -175,7 +174,9 @@ pub async fn dashboard_page(
             </div>
         </body>
         </html>
-    "#, tricks_html))
+    "#,
+        tricks_html
+    ))
 }
 
 pub async fn trick_action_handler(
@@ -185,15 +186,18 @@ pub async fn trick_action_handler(
     match payload.action.as_str() {
         "approve" => {
             let _ = TrickService::approve_trick(&state.pool, payload.trick_id).await;
-        },
+        }
         "reject" => {
             let _ = TrickService::reject_trick(&state.pool, payload.trick_id).await;
-        },
+        }
         _ => {}
     }
     Redirect::to("/admin")
 }
 
 pub async fn logout_handler(jar: CookieJar) -> impl IntoResponse {
-    (jar.remove(Cookie::from("admin_token")), Redirect::to("/admin/login"))
+    (
+        jar.remove(Cookie::from("admin_token")),
+        Redirect::to("/admin/login"),
+    )
 }

@@ -7,8 +7,11 @@ pub struct AuthUser {
     pub id: Uuid,
 }
 
-pub fn extract_auth_user(headers: &HeaderMap, jar: &CookieJar, jwt_secret: &str) -> Option<AuthUser> {
-
+pub fn extract_auth_user(
+    headers: &HeaderMap,
+    jar: &CookieJar,
+    jwt_secret: &str,
+) -> Option<AuthUser> {
     if let Some(auth_header) = headers.get("Authorization") {
         if let Ok(auth_str) = auth_header.to_str() {
             println!("   > Found Authorization Header");

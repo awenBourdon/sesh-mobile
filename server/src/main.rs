@@ -7,10 +7,10 @@ use crate::core::graphql_utils::graphql_playground_handler;
 use async_graphql::{EmptySubscription, MergedObject, Schema};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::{
+    Router,
     extract::State,
     http::HeaderMap,
     routing::{get, post},
-    Router,
 };
 use axum_extra::extract::cookie::CookieJar;
 use config::Config;
@@ -19,8 +19,8 @@ use modules::admin::admin_routes;
 use modules::auth::auth_routes;
 use modules::spots::resolver::{SpotsMutation, SpotsQuery};
 use modules::tricks::resolver::{TricksMutation, TricksQuery};
-use sqlx::postgres::PgPoolOptions;
 use sqlx::PgPool;
+use sqlx::postgres::PgPoolOptions;
 use std::sync::Arc;
 use tower_http::cors::CorsLayer;
 use uuid::Uuid;
@@ -94,7 +94,10 @@ async fn main() {
     let app = Router::new()
         .nest("/api/auth", auth_routes())
         .nest("/admin", admin_routes(app_state.clone()))
-        .route("/graphql", get(graphql_playground_handler).post(graphql_handler))
+        .route(
+            "/graphql",
+            get(graphql_playground_handler).post(graphql_handler),
+        )
         .layer(cors)
         .with_state(app_state);
 

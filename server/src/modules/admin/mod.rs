@@ -1,13 +1,13 @@
 pub mod controller;
 pub mod middleware;
 
+use crate::AppState;
 use axum::{
+    Router,
     middleware::from_fn_with_state,
     routing::{get, post},
-    Router,
 };
 use std::sync::Arc;
-use crate::AppState;
 
 pub fn admin_routes(state: Arc<AppState>) -> Router<Arc<AppState>> {
     let protected_routes = Router::new()
@@ -16,7 +16,10 @@ pub fn admin_routes(state: Arc<AppState>) -> Router<Arc<AppState>> {
         .route_layer(from_fn_with_state(state, middleware::admin_middleware));
 
     Router::new()
-        .route("/login", get(controller::login_page).post(controller::login_handler))
+        .route(
+            "/login",
+            get(controller::login_page).post(controller::login_handler),
+        )
         .route("/logout", get(controller::logout_handler))
         .merge(protected_routes)
 }
