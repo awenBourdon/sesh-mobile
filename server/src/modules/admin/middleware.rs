@@ -15,26 +15,25 @@ pub async fn admin_middleware(
     jar: CookieJar,
     req: Request<Body>,
     next: Next,
-) -> Result<Response, Response> {
+) -> Response {
     let token = match jar.get("admin_token").map(|c| c.value().to_string()) {
         Some(t) => t,
-        None => return Err(Redirect::to("/admin/login").into_response()),
+        None => return Redirect::to("/admin/login").into_response(),
     };
 
     let user_id = match decode_jwt(&token, &state.config.jwt_secret) {
         Ok(id) => id,
-        Err(_) => return Err(Redirect::to("/admin/login").into_response()),
+        Err(_) => return Redirect::to("/admin/login").into_response(),
     };
 
-    let is_admin = sqlx::query_scalar::<_, bool>("SELECT is_admin FROM users WHERE id = $1")
+    let is_admin_result = sqlx::query_scalar::<_, bool>("SELECT is_admin FROM users WHERE id = $1")
         .bind(user_id)
         .fetch_one(&state.pool)
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR.into_response())?;
+        .await;
 
-    if is_admin {
-        Ok(next.run(req).await)
-    } else {
-        Err(Redirect::to("/admin/login").into_response())
+    match is_admin_result {
+        Ok(true) => next.run(req).await,
+        Ok(false) => Redirect::to("/admin/login").into_response(),
+        Err(_) => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
     }
 }
