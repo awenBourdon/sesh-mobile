@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'explorer_screen.dart';
 import 'profile_screen.dart';
-import '../services/auth_service.dart';
 
 class MainNavigation extends StatefulWidget {
   final VoidCallback onLogout;
