@@ -61,4 +61,35 @@ class SpotService {
     final List<dynamic> spotsJson = result.data?['getSpots'] ?? [];
     return spotsJson.map((json) => Spot.fromJson(json)).toList();
   }
+
+  static Future<Spot> fetchSpotById(String id) async {
+    const String getSpotByIdQuery = r'''
+      query GetSpotById($id: UUID!) {
+        getSpotById(id: $id) {
+          id
+          name
+          latitude
+          longitude
+        }
+      }
+    ''';
+
+    final QueryOptions options = QueryOptions(
+      document: gql(getSpotByIdQuery),
+      variables: {'id': id},
+      fetchPolicy: FetchPolicy.networkOnly,
+    );
+
+    final QueryResult result = await _client.query(options);
+
+    if (result.hasException) {
+      throw Exception(result.exception.toString());
+    }
+
+    if (result.data?['getSpotById'] == null) {
+      throw Exception('Spot not found');
+    }
+
+    return Spot.fromJson(result.data!['getSpotById']);
+  }
 }

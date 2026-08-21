@@ -1,4 +1,5 @@
 use sqlx::PgPool;
+use uuid::Uuid;
 
 use super::dto::CreateSpotInput;
 use super::model::SpotModel;
@@ -14,6 +15,10 @@ impl SpotService {
 
     pub async fn get_all_spots(pool: &PgPool) -> Result<Vec<SpotModel>, AppError> {
         SpotRepository::find_all(pool).await
+    }
+
+    pub async fn get_spot_by_id(pool: &PgPool, id: Uuid) -> Result<Option<SpotModel>, AppError> {
+        SpotRepository::find_by_id(pool, id).await
     }
 
     pub async fn find_or_create_spot(
