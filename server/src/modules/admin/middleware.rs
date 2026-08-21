@@ -1,5 +1,6 @@
 use crate::AppState;
 use crate::core::security::decode_jwt;
+use crate::modules::users::service::UserService;
 use axum::{
     body::Body,
     extract::State,
@@ -26,14 +27,11 @@ pub async fn admin_middleware(
         Err(_) => return Redirect::to("/admin/login").into_response(),
     };
 
-    let is_admin_result = sqlx::query_scalar::<_, bool>("SELECT is_admin FROM users WHERE id = $1")
-        .bind(user_id)
-        .fetch_one(&state.pool)
-        .await;
+    let user_result = UserService::get_user_by_id(&state.pool, user_id).await;
 
-    match is_admin_result {
-        Ok(true) => next.run(req).await,
-        Ok(false) => Redirect::to("/admin/login").into_response(),
+    match user_result {
+        Ok(Some(user)) if user.is_admin => next.run(req).await,
+        Ok(_) => Redirect::to("/admin/login").into_response(),
         Err(_) => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
     }
 }

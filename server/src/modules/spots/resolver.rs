@@ -4,6 +4,7 @@ use super::service::SpotService;
 use crate::AppState;
 use async_graphql::{Context, Object, Result};
 use std::sync::Arc;
+use uuid::Uuid;
 
 #[derive(Default)]
 pub struct SpotsQuery;
@@ -16,6 +17,15 @@ impl SpotsQuery {
             .await
             .map_err(|e| async_graphql::Error::new(e.to_string()))?;
         Ok(spots)
+    }
+
+    async fn get_spot_by_id(&self, ctx: &Context<'_>, id: Uuid) -> Result<SpotModel> {
+        let state = ctx.data::<Arc<AppState>>()?;
+        let spot = SpotService::get_spot_by_id(&state.pool, id)
+            .await
+            .map_err(|e| async_graphql::Error::new(e.to_string()))?
+            .ok_or_else(|| async_graphql::Error::new("Spot not found"))?;
+        Ok(spot)
     }
 }
 

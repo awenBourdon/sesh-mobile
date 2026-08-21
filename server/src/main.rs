@@ -14,13 +14,14 @@ use modules::admin::admin_routes;
 use modules::auth::auth_routes;
 use modules::spots::resolver::{SpotsMutation, SpotsQuery};
 use modules::tricks::resolver::{TricksMutation, TricksQuery};
+use modules::users::resolver::UsersQuery;
 use sqlx::PgPool;
 use sqlx::postgres::PgPoolOptions;
 use std::sync::Arc;
 use tower_http::cors::CorsLayer;
 
 #[derive(MergedObject, Default)]
-pub struct QueryRoot(SpotsQuery, TricksQuery);
+pub struct QueryRoot(SpotsQuery, TricksQuery, UsersQuery);
 
 #[derive(MergedObject, Default)]
 pub struct MutationRoot(SpotsMutation, TricksMutation);

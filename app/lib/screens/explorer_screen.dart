@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/trick_service.dart';
 import 'package:intl/intl.dart';
+import 'spot_detail_screen.dart';
 
 class ExplorerScreen extends StatefulWidget {
   const ExplorerScreen({super.key});
@@ -104,11 +105,17 @@ class _ExplorerScreenState extends State<ExplorerScreen> {
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     TextButton.icon(
-                                      onPressed: () {
-                                      },
-                                      icon: const Icon(Icons.location_on, size: 18),
-                                      label: const Text('Voir le spot'),
-                                    ),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => SpotDetailScreen(spotId: trick.spotId),
+                                        ),
+                                      );
+                                    },
+                                    icon: const Icon(Icons.location_on, size: 18),
+                                    label: const Text('Voir le spot'),
+                                  ),
                                   ],
                                 ),
                               ),
