@@ -26,14 +26,9 @@ impl TricksQuery {
 
     async fn get_all_tricks(&self, ctx: &Context<'_>) -> Result<Vec<TrickModel>> {
         let state = ctx.data::<Arc<AppState>>()?;
-        println!("--- [QUERY DEBUG] Fetching all approved tricks ---");
         let tricks = TrickService::get_all_approved_tricks(&state.pool)
             .await
-            .map_err(|e| {
-                println!("   ❌ Error: {}", e);
-                async_graphql::Error::new(e.to_string())
-            })?;
-        println!("   ✅ Success: {} tricks found", tricks.len());
+            .map_err(|e| async_graphql::Error::new(e.to_string()))?;
         Ok(tricks)
     }
 }
@@ -46,7 +41,6 @@ impl TricksMutation {
     async fn create_trick(&self, ctx: &Context<'_>, input: CreateTrickInput) -> Result<TrickModel> {
         let state = ctx.data::<Arc<AppState>>()?;
 
-        // On récupère l'utilisateur authentifié depuis le contexte
         let auth_user = ctx.data::<AuthUser>().map_err(|_| {
             async_graphql::Error::new("Unauthorized: You must be logged in to create a trick")
         })?;

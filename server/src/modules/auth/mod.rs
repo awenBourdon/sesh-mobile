@@ -1,6 +1,5 @@
 pub mod controller;
 pub mod dto;
-pub mod model;
 pub mod service;
 
 use crate::AppState;
