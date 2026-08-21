@@ -27,10 +27,15 @@ pub struct TrickActionForm {
 
 pub async fn login_page(State(state): State<Arc<AppState>>, jar: CookieJar) -> impl IntoResponse {
     // Si déjà connecté et admin, redirection vers le dashboard
-    if let Some(cookie) = jar.get("admin_token") {
-        if crate::core::security::decode_jwt(cookie.value(), &state.config.jwt_secret).is_ok() {
-            return Redirect::to("/admin").into_response();
-        }
+    let already_logged_in = jar
+        .get("admin_token")
+        .map(|cookie| {
+            crate::core::security::decode_jwt(cookie.value(), &state.config.jwt_secret).is_ok()
+        })
+        .unwrap_or(false);
+
+    if already_logged_in {
+        return Redirect::to("/admin").into_response();
     }
 
     Html(r#"
@@ -96,10 +101,9 @@ pub async fn login_handler(
 }
 
 pub async fn dashboard_page(State(state): State<Arc<AppState>>) -> impl IntoResponse {
-    let pending_tricks = match TrickService::get_pending_tricks(&state.pool).await {
-        Ok(tricks) => tricks,
-        Err(_) => Vec::new(),
-    };
+    let pending_tricks = TrickService::get_pending_tricks(&state.pool)
+        .await
+        .unwrap_or_default();
 
     let mut tricks_html = String::new();
     if pending_tricks.is_empty() {

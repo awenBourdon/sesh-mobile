@@ -18,12 +18,12 @@ pub async fn admin_middleware(
 ) -> Result<Response, Response> {
     let token = match jar.get("admin_token").map(|c| c.value().to_string()) {
         Some(t) => t,
-        None => return Ok(Redirect::to("/admin/login").into_response()),
+        None => return Err(Redirect::to("/admin/login").into_response()),
     };
 
     let user_id = match decode_jwt(&token, &state.config.jwt_secret) {
         Ok(id) => id,
-        Err(_) => return Ok(Redirect::to("/admin/login").into_response()),
+        Err(_) => return Err(Redirect::to("/admin/login").into_response()),
     };
 
     let is_admin = sqlx::query_scalar::<_, bool>("SELECT is_admin FROM users WHERE id = $1")
@@ -35,6 +35,6 @@ pub async fn admin_middleware(
     if is_admin {
         Ok(next.run(req).await)
     } else {
-        Ok(Redirect::to("/admin/login").into_response())
+        Err(Redirect::to("/admin/login").into_response())
     }
 }

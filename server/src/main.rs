@@ -6,12 +6,7 @@ use crate::core::auth::extract_auth_user;
 use crate::core::graphql_utils::graphql_playground_handler;
 use async_graphql::{EmptySubscription, MergedObject, Schema};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
-use axum::{
-    Router,
-    extract::State,
-    http::HeaderMap,
-    routing::{get, post},
-};
+use axum::{Router, extract::State, http::HeaderMap, routing::get};
 use axum_extra::extract::cookie::CookieJar;
 use config::Config;
 use dotenvy::dotenv;
@@ -23,7 +18,6 @@ use sqlx::PgPool;
 use sqlx::postgres::PgPoolOptions;
 use std::sync::Arc;
 use tower_http::cors::CorsLayer;
-use uuid::Uuid;
 
 #[derive(MergedObject, Default)]
 pub struct QueryRoot(SpotsQuery, TricksQuery);
