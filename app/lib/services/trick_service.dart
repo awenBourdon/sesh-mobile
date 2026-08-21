@@ -1,5 +1,6 @@
 import 'package:graphql_flutter/graphql_flutter.dart';
 import '../core/constants.dart';
+import 'auth_service.dart';
 
 class Trick {
   final String id;
@@ -31,12 +32,20 @@ class Trick {
 }
 
 class TrickService {
-  static final HttpLink _httpLink = HttpLink(ApiConstants.graphqlUrl);
+  static Future<GraphQLClient> _getClient() async {
+    final token = await AuthService.getToken();
+    final HttpLink httpLink = HttpLink(
+      ApiConstants.graphqlUrl,
+      defaultHeaders: {
+        if (token != null) 'Authorization': 'Bearer $token',
+      },
+    );
 
-  static final GraphQLClient _client = GraphQLClient(
-    link: _httpLink,
-    cache: GraphQLCache(),
-  );
+    return GraphQLClient(
+      link: httpLink,
+      cache: GraphQLCache(),
+    );
+  }
 
   static Future<List<Trick>> fetchAllTricks() async {
     const String getAllTricksQuery = r'''
@@ -52,12 +61,13 @@ class TrickService {
       }
     ''';
 
+    final client = await _getClient();
     final QueryOptions options = QueryOptions(
       document: gql(getAllTricksQuery),
       fetchPolicy: FetchPolicy.networkOnly,
     );
 
-    final QueryResult result = await _client.query(options);
+    final QueryResult result = await client.query(options);
 
     if (result.hasException) {
       throw Exception(result.exception.toString());
@@ -65,5 +75,51 @@ class TrickService {
 
     final List<dynamic> tricksJson = result.data?['getAllTricks'] ?? [];
     return tricksJson.map((json) => Trick.fromJson(json)).toList();
+  }
+
+  static Future<Trick> createTrick({
+    required double latitude,
+    required double longitude,
+    String? description,
+    String? videoUrl,
+  }) async {
+    const String createTrickMutation = r'''
+      mutation CreateTrick($input: CreateTrickInput!) {
+        createTrick(input: $input) {
+          id
+          userId
+          spotId
+          description
+          videoUrl
+          createdAt
+        }
+      }
+    ''';
+
+    final client = await _getClient();
+    final MutationOptions options = MutationOptions(
+      document: gql(createTrickMutation),
+      variables: {
+        'input': {
+          'latitude': latitude,
+          'longitude': longitude,
+          'description': description,
+          'videoUrl': videoUrl,
+        },
+      },
+    );
+
+    final QueryResult result = await client.mutate(options);
+
+    if (result.hasException) {
+      throw Exception(result.exception.toString());
+    }
+
+    final data = result.data?['createTrick'];
+    if (data == null) {
+      throw Exception('Failed to create trick');
+    }
+
+    return Trick.fromJson(data);
   }
 }

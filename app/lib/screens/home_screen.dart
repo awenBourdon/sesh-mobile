@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import '../services/auth_service.dart';
 import '../services/spot_service.dart';
 import 'spot_detail_screen.dart';
+import 'add_trick_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback onLogout;
@@ -39,17 +40,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadSpots() async {
     try {
       final spots = await SpotService.fetchSpots();
-      debugPrint('${spots.length} spots récupérés depuis le serveur');
-      for (var i = 0; i < spots.length; i++) {
-        final s = spots[i];
-        debugPrint('   [$i] "${s.name ?? "Sans nom"}" at [${s.latitude}, ${s.longitude}] (ID: ${s.id})');
-      }
-      
       setState(() {
         _spots = spots;
       });
     } catch (e) {
-      debugPrint('❌ SESH_ERROR: Erreur lors du chargement des spots : $e');
+       debugPrint('Erreur lors du chargement des spots : $e');
     }
   }
 
@@ -165,6 +160,26 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _navigateToAddTrick() async {
+    if (_currentPosition == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Position GPS inconnue')),
+      );
+      return;
+    }
+
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddTrickScreen(initialLocation: _currentPosition!),
+      ),
+    );
+
+    if (result == true) {
+      _loadSpots();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -261,8 +276,23 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
                 Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 30,
+                  child: Center(
+                    child: FloatingActionButton.extended(
+                      heroTag: 'addTrick',
+                      onPressed: _navigateToAddTrick,
+                      backgroundColor: Colors.blueAccent,
+                      foregroundColor: Colors.white,
+                      icon: const Icon(Icons.add),
+                      label: const Text('AJOUTER UN TRICK'),
+                    ),
+                  ),
+                ),
+                Positioned(
                   right: 16,
-                  bottom: 16,
+                  bottom: 100,
                   child: Column(
                     children: [
                       FloatingActionButton(
