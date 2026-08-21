@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/auth_screen.dart';
 import 'screens/main_navigation.dart';
-import 'services/auth_service.dart';
 
 void main() {
   runApp(const SeshApp());
