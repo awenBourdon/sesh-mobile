@@ -7,9 +7,24 @@ class AuthService {
   static const _storage = FlutterSecureStorage();
   static const _tokenKey = 'jwt_token';
   static const _isAdminKey = 'is_admin';
+  static const _usernameKey = 'username';
+  static const _emailKey = 'email';
+  static const _avatarKey = 'avatar_url';
 
   static Future<String?> getToken() async {
     return await _storage.read(key: _tokenKey);
+  }
+
+  static Future<String?> getUsername() async {
+    return await _storage.read(key: _usernameKey);
+  }
+
+  static Future<String?> getEmail() async {
+    return await _storage.read(key: _emailKey);
+  }
+
+  static Future<String?> getAvatarUrl() async {
+    return await _storage.read(key: _avatarKey);
   }
 
   static Future<bool> isAdmin() async {
@@ -33,6 +48,11 @@ class AuthService {
         final data = jsonDecode(response.body);
         await _storage.write(key: _tokenKey, value: data['token']);
         await _storage.write(key: _isAdminKey, value: data['is_admin'].toString());
+        await _storage.write(key: _usernameKey, value: data['username']);
+        await _storage.write(key: _emailKey, value: data['email']);
+        if (data['avatar_url'] != null) {
+          await _storage.write(key: _avatarKey, value: data['avatar_url']);
+        }
         return true;
       }
       return false;
@@ -58,6 +78,11 @@ class AuthService {
         final data = jsonDecode(response.body);
         await _storage.write(key: _tokenKey, value: data['token']);
         await _storage.write(key: _isAdminKey, value: data['is_admin'].toString());
+        await _storage.write(key: _usernameKey, value: data['username']);
+        await _storage.write(key: _emailKey, value: data['email']);
+        if (data['avatar_url'] != null) {
+          await _storage.write(key: _avatarKey, value: data['avatar_url']);
+        }
         return true;
       }
       return false;
@@ -69,5 +94,8 @@ class AuthService {
   static Future<void> logout() async {
     await _storage.delete(key: _tokenKey);
     await _storage.delete(key: _isAdminKey);
+    await _storage.delete(key: _usernameKey);
+    await _storage.delete(key: _emailKey);
+    await _storage.delete(key: _avatarKey);
   }
 }
