@@ -51,3 +51,16 @@ pub fn create_jwt(user_id: &Uuid, secret: &str) -> Result<String, jsonwebtoken::
         &EncodingKey::from_secret(secret.as_bytes()),
     )
 }
+
+pub fn decode_jwt(token: &str, secret: &str) -> Result<Uuid, String> {
+    use jsonwebtoken::{DecodingKey, Validation, decode};
+
+    let token_data = decode::<Claims>(
+        token,
+        &DecodingKey::from_secret(secret.as_bytes()),
+        &Validation::default(),
+    )
+    .map_err(|e| e.to_string())?;
+
+    Uuid::parse_str(&token_data.claims.sub).map_err(|e| e.to_string())
+}

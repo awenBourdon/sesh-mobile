@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../services/spot_service.dart';
-import 'spot_detail_screen.dart';
+import '../services/trick_service.dart';
+import 'package:intl/intl.dart';
 
 class ExplorerScreen extends StatefulWidget {
   const ExplorerScreen({super.key});
@@ -10,20 +10,20 @@ class ExplorerScreen extends StatefulWidget {
 }
 
 class _ExplorerScreenState extends State<ExplorerScreen> {
-  List<Spot> _spots = [];
+  List<Trick> _tricks = [];
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadSpots();
+    _loadTricks();
   }
 
-  Future<void> _loadSpots() async {
+  Future<void> _loadTricks() async {
     try {
-      final spots = await SpotService.fetchSpots();
+      final tricks = await TrickService.fetchAllTricks();
       setState(() {
-        _spots = spots;
+        _tricks = tricks;
         _isLoading = false;
       });
     } catch (e) {
@@ -37,47 +37,87 @@ class _ExplorerScreenState extends State<ExplorerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Explorer les Spots'),
+        title: const Text('Explorer les Tricks'),
         centerTitle: true,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : _spots.isEmpty
-              ? const Center(child: Text('Aucun spot trouvé.'))
-              : RefreshIndicator(
-                  onRefresh: _loadSpots,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(10),
-                    itemCount: _spots.length,
-                    itemBuilder: (context, index) {
-                      final spot = _spots[index];
-                      return Card(
-                        elevation: 2,
-                        margin: const EdgeInsets.only(bottom: 10),
-                        child: ListTile(
-                          leading: const CircleAvatar(
-                            backgroundColor: Colors.blueAccent,
-                            child: Icon(Icons.location_on, color: Colors.white),
+          : RefreshIndicator(
+              onRefresh: _loadTricks,
+              child: _tricks.isEmpty
+                  ? ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: const [
+                        SizedBox(height: 100),
+                        Center(
+                          child: Text(
+                            'Aucun trick validé pour le moment.\nTirez pour actualiser.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: Colors.grey),
                           ),
-                          title: Text(
-                            spot.name ?? 'Spot sans nom',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Text('Lat: ${spot.latitude.toStringAsFixed(4)}, Lng: ${spot.longitude.toStringAsFixed(4)}'),
-                          trailing: const Icon(Icons.chevron_right),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => SpotDetailScreen(spot: spot),
-                              ),
-                            );
-                          },
                         ),
-                      );
-                    },
-                  ),
-                ),
+                      ],
+                    )
+                  : ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(10),
+                      itemCount: _tricks.length,
+                      itemBuilder: (context, index) {
+                        final trick = _tricks[index];
+                        return Card(
+                          elevation: 3,
+                          margin: const EdgeInsets.only(bottom: 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ListTile(
+                                leading: const CircleAvatar(
+                                  backgroundColor: Colors.blueAccent,
+                                  child: Icon(Icons.skateboarding, color: Colors.white),
+                                ),
+                                title: Text(
+                                  trick.description ?? 'Trick sans description',
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                subtitle: Text(
+                                  'Le ${DateFormat('dd/MM/yyyy à HH:mm').format(trick.createdAt)}',
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                              ),
+                              if (trick.videoUrl != null)
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.videocam, size: 16, color: Colors.grey),
+                                      SizedBox(width: 5),
+                                      Text('Vidéo disponible', style: TextStyle(color: Colors.grey)),
+                                    ],
+                                  ),
+                                ),
+                              Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    TextButton.icon(
+                                      onPressed: () {
+                                      },
+                                      icon: const Icon(Icons.location_on, size: 18),
+                                      label: const Text('Voir le spot'),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+            ),
     );
   }
 }

@@ -2,28 +2,28 @@ mod config;
 mod core;
 mod modules;
 
+use crate::core::auth::extract_auth_user;
+use crate::core::graphql_utils::graphql_playground_handler;
 use async_graphql::{EmptySubscription, MergedObject, Schema};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
-use axum::{
-    Router,
-    extract::State,
-    response::{Html, IntoResponse},
-    routing::get,
-};
+use axum::{Router, extract::State, http::HeaderMap, routing::get};
+use axum_extra::extract::cookie::CookieJar;
 use config::Config;
 use dotenvy::dotenv;
+use modules::admin::admin_routes;
 use modules::auth::auth_routes;
 use modules::spots::resolver::{SpotsMutation, SpotsQuery};
+use modules::tricks::resolver::{TricksMutation, TricksQuery};
 use sqlx::PgPool;
 use sqlx::postgres::PgPoolOptions;
 use std::sync::Arc;
-use tower_http::cors::{Any, CorsLayer};
+use tower_http::cors::CorsLayer;
 
 #[derive(MergedObject, Default)]
-pub struct QueryRoot(SpotsQuery);
+pub struct QueryRoot(SpotsQuery, TricksQuery);
 
 #[derive(MergedObject, Default)]
-pub struct MutationRoot(SpotsMutation);
+pub struct MutationRoot(SpotsMutation, TricksMutation);
 
 pub type AppSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 
@@ -35,19 +35,17 @@ pub struct AppState {
 
 async fn graphql_handler(
     State(state): State<Arc<AppState>>,
+    headers: HeaderMap,
+    jar: CookieJar,
     req: GraphQLRequest,
 ) -> GraphQLResponse {
-    state
-        .schema
-        .execute(req.into_inner().data(state.clone()))
-        .await
-        .into()
-}
+    let mut req = req.into_inner();
 
-async fn graphql_playground() -> impl IntoResponse {
-    Html(async_graphql::http::playground_source(
-        async_graphql::http::GraphQLPlaygroundConfig::new("/graphql"),
-    ))
+    if let Some(auth_user) = extract_auth_user(&headers, &jar, &state.config.jwt_secret) {
+        req = req.data(auth_user);
+    }
+
+    state.schema.execute(req.data(state.clone())).await.into()
 }
 
 #[tokio::main]
@@ -83,13 +81,17 @@ async fn main() {
     });
 
     let cors = CorsLayer::new()
-        .allow_origin(Any)
-        .allow_methods(Any)
-        .allow_headers(Any);
+        .allow_origin(tower_http::cors::Any)
+        .allow_methods(tower_http::cors::Any)
+        .allow_headers(tower_http::cors::Any);
 
     let app = Router::new()
         .nest("/api/auth", auth_routes())
-        .route("/graphql", get(graphql_playground).post(graphql_handler))
+        .nest("/admin", admin_routes(app_state.clone()))
+        .route(
+            "/graphql",
+            get(graphql_playground_handler).post(graphql_handler),
+        )
         .layer(cors)
         .with_state(app_state);
 
