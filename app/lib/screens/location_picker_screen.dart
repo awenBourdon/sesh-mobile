@@ -57,7 +57,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
           ),
           Center(
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 35), // Ajustement pour que la pointe de l'icône soit au centre
+              padding: const EdgeInsets.only(bottom: 35),
               child: Icon(
                 Icons.location_on,
                 size: 50,
