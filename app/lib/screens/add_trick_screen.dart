@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import '../services/trick_service.dart';
+import '../services/upload_service.dart';
 import 'location_picker_screen.dart';
 
 class AddTrickScreen extends StatefulWidget {
@@ -16,6 +17,7 @@ class _AddTrickScreenState extends State<AddTrickScreen> {
   final _descriptionController = TextEditingController();
   late LatLng _selectedLocation;
   bool _isSubmitting = false;
+  String? _videoUrl;
 
   @override
   void initState() {
@@ -27,6 +29,36 @@ class _AddTrickScreenState extends State<AddTrickScreen> {
   void dispose() {
     _descriptionController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickVideo() async {
+    setState(() => _isSubmitting = true);
+    try {
+      // Pour le moment on utilise juste le picker sans upload immédiat pour l'UI
+      // On va générer une miniature pour confirmer le choix
+      final result = await UploadService.pickAndUploadVideo(
+        onProgress: (p) => debugPrint("Progress: $p"),
+      );
+
+      if (result != null) {
+        setState(() {
+          _videoUrl = result;
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Vidéo prête ! 🎬')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur vidéo : $e')),
+        );
+      }
+    } finally {
+      setState(() => _isSubmitting = false);
+    }
   }
 
   Future<void> _pickLocation() async {
@@ -61,6 +93,7 @@ class _AddTrickScreenState extends State<AddTrickScreen> {
         latitude: _selectedLocation.latitude,
         longitude: _selectedLocation.longitude,
         description: _descriptionController.text.trim(),
+        videoUrl: _videoUrl, // On passe l'URL Cloudinary ici
       );
 
       if (mounted) {
@@ -90,7 +123,7 @@ class _AddTrickScreenState extends State<AddTrickScreen> {
       appBar: AppBar(
         title: const Text('Ajouter un Trick'),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -127,7 +160,39 @@ class _AddTrickScreenState extends State<AddTrickScreen> {
             ),
             const SizedBox(height: 30),
             const Text(
-              'Description du trick',
+              'Vidéo du trick',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            if (_videoUrl == null)
+              OutlinedButton.icon(
+                onPressed: _isSubmitting ? null : _pickVideo,
+                icon: const Icon(Icons.videocam),
+                label: const Text('SÉLECTIONNER UNE VIDÉO'),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  side: BorderSide(color: Colors.blueAccent.withValues(alpha: 0.5)),
+                ),
+              )
+            else
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.green[50],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.green[200]!),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.check_circle, color: Colors.green),
+                    SizedBox(width: 10),
+                    Text('Vidéo téléchargée avec succès !', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              ),
+            const SizedBox(height: 30),
+            const Text(
+              'Description',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
@@ -140,7 +205,7 @@ class _AddTrickScreenState extends State<AddTrickScreen> {
               maxLines: 3,
               enabled: !_isSubmitting,
             ),
-            const Spacer(),
+            const SizedBox(height: 40),
             ElevatedButton(
               onPressed: _isSubmitting ? null : _submit,
               style: ElevatedButton.styleFrom(

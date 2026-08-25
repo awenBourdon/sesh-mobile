@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/trick_service.dart';
 import 'package:intl/intl.dart';
 import 'spot_detail_screen.dart';
+import 'trick_detail_screen.dart';
 
 class ExplorerScreen extends StatefulWidget {
   const ExplorerScreen({super.key});
@@ -65,61 +66,71 @@ class _ExplorerScreenState extends State<ExplorerScreen> {
                       itemCount: _tricks.length,
                       itemBuilder: (context, index) {
                         final trick = _tricks[index];
-                        return Card(
-                          elevation: 3,
-                          margin: const EdgeInsets.only(bottom: 15),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ListTile(
-                                leading: const CircleAvatar(
-                                  backgroundColor: Colors.blueAccent,
-                                  child: Icon(Icons.skateboarding, color: Colors.white),
-                                ),
-                                title: Text(
-                                  trick.description ?? 'Trick sans description',
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                subtitle: Text(
-                                  'Le ${DateFormat('dd/MM/yyyy à HH:mm').format(trick.createdAt)}',
-                                  style: const TextStyle(fontSize: 12),
-                                ),
+                        return InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => TrickDetailScreen(trick: trick),
                               ),
-                              if (trick.videoUrl != null)
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            );
+                          },
+                          child: Card(
+                            elevation: 3,
+                            margin: const EdgeInsets.only(bottom: 15),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ListTile(
+                                  leading: const CircleAvatar(
+                                    backgroundColor: Colors.blueAccent,
+                                    child: Icon(Icons.skateboarding, color: Colors.white),
+                                  ),
+                                  title: Text(
+                                    trick.description ?? 'Trick sans description',
+                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  subtitle: Text(
+                                    'Le ${DateFormat('dd/MM/yyyy à HH:mm').format(trick.createdAt)}',
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                ),
+                                if (trick.videoUrl != null)
+                                  const Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.videocam, size: 16, color: Colors.grey),
+                                        SizedBox(width: 5),
+                                        Text('Vidéo disponible', style: TextStyle(color: Colors.grey)),
+                                      ],
+                                    ),
+                                  ),
+                                Padding(
+                                  padding: const EdgeInsets.all(16),
                                   child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
-                                      Icon(Icons.videocam, size: 16, color: Colors.grey),
-                                      SizedBox(width: 5),
-                                      Text('Vidéo disponible', style: TextStyle(color: Colors.grey)),
+                                      TextButton.icon(
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => SpotDetailScreen(spotId: trick.spotId),
+                                            ),
+                                          );
+                                        },
+                                        icon: const Icon(Icons.location_on, size: 18),
+                                        label: const Text('Voir le spot'),
+                                      ),
                                     ],
                                   ),
                                 ),
-                              Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    TextButton.icon(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => SpotDetailScreen(spotId: trick.spotId),
-                                        ),
-                                      );
-                                    },
-                                    icon: const Icon(Icons.location_on, size: 18),
-                                    label: const Text('Voir le spot'),
-                                  ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         );
                       },
