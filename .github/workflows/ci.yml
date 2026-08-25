@@ -69,6 +69,9 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Create dummy .env for CI
+        run: cp .env.example .env
+
       - name: Analyze Flutter code
         run: flutter analyze
 
