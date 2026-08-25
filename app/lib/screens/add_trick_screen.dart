@@ -34,8 +34,6 @@ class _AddTrickScreenState extends State<AddTrickScreen> {
   Future<void> _pickVideo() async {
     setState(() => _isSubmitting = true);
     try {
-      // Pour le moment on utilise juste le picker sans upload immédiat pour l'UI
-      // On va générer une miniature pour confirmer le choix
       final result = await UploadService.pickAndUploadVideo(
         onProgress: (p) => debugPrint("Progress: $p"),
       );
@@ -93,7 +91,7 @@ class _AddTrickScreenState extends State<AddTrickScreen> {
         latitude: _selectedLocation.latitude,
         longitude: _selectedLocation.longitude,
         description: _descriptionController.text.trim(),
-        videoUrl: _videoUrl, // On passe l'URL Cloudinary ici
+        videoUrl: _videoUrl,
       );
 
       if (mounted) {
