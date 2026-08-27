@@ -19,6 +19,13 @@ class Trick {
     required this.createdAt,
   });
 
+  String? get thumbnailUrl {
+    if (videoUrl == null) return null;
+    return videoUrl!
+        .replaceAll('.mp4', '.jpg')
+        .replaceAll('/video/upload/', '/video/upload/so_auto,w_500,c_limit/');
+  }
+
   factory Trick.fromJson(Map<String, dynamic> json) {
     return Trick(
       id: json['id'],

@@ -43,7 +43,9 @@ class _TrickDetailScreenState extends State<TrickDetailScreen> {
         autoPlay: true,
         looping: true,
         aspectRatio: _videoPlayerController!.value.aspectRatio,
-        placeholder: const Center(child: CircularProgressIndicator()),
+        placeholder: widget.trick.thumbnailUrl != null
+            ? Image.network(widget.trick.thumbnailUrl!, fit: BoxFit.cover)
+            : const Center(child: CircularProgressIndicator()),
       );
 
       setState(() => _isLoading = false);
