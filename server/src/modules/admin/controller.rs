@@ -1,17 +1,17 @@
-use axum_extra::extract::cookie::{Cookie, CookieJar};
 use axum::{
+    Form,
     extract::State,
     response::{Html, IntoResponse, Redirect},
-    Form,
 };
+use axum_extra::extract::cookie::{Cookie, CookieJar};
 use serde::Deserialize;
 use std::sync::Arc;
 use uuid::Uuid;
 
+use crate::AppState;
 use crate::modules::auth::dto::LoginDto;
 use crate::modules::auth::service::AuthService;
 use crate::modules::tricks::service::TrickService;
-use crate::AppState;
 
 #[derive(Deserialize)]
 pub struct AdminLoginForm {
@@ -182,7 +182,8 @@ pub async fn dashboard_page(State(state): State<Arc<AppState>>) -> impl IntoResp
         }
     }
 
-    Html(format!(r#"
+    Html(format!(
+        r#"
         <!DOCTYPE html>
         <html>
         <head>
@@ -290,7 +291,9 @@ pub async fn dashboard_page(State(state): State<Arc<AppState>>) -> impl IntoResp
             </div>
         </body>
         </html>
-    "#, tricks_html))
+    "#,
+        tricks_html
+    ))
 }
 
 pub async fn trick_action_handler(

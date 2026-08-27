@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/trick_service.dart';
 import 'package:intl/intl.dart';
-import 'spot_detail_screen.dart';
 import 'trick_detail_screen.dart';
 
 class ExplorerScreen extends StatefulWidget {
