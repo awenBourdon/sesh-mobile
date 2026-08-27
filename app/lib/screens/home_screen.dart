@@ -117,9 +117,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('Annuler', style: TextStyle(color: Colors.red)),
+                    child: const Text('ANNULER', style: TextStyle(color: Colors.black38, fontWeight: FontWeight.bold)),
                   ),
-                  ElevatedButton(
+                    ElevatedButton(
                     onPressed: () {
                       Navigator.pop(context);
                       Navigator.push(
@@ -130,10 +130,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
+                      backgroundColor: const Color(0xFF1A1A1A),
                       foregroundColor: Colors.white,
                     ),
-                    child: const Text('Voir le spot'),
+                    child: const Text('VOIR LE SPOT'),
                   ),
                 ],
               ),
@@ -214,45 +214,32 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   children: [
                     TileLayer(
-                      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      urlTemplate: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
                       userAgentPackageName: 'com.sesh.app',
                     ),
+                    // Marqueurs des spots simplifiés
                     MarkerLayer(
                       markers: _spots.map((spot) => Marker(
                         point: spot.location,
-                        width: 40,
-                        height: 40,
+                        width: 30,
+                        height: 30,
                         child: GestureDetector(
                           onTap: () => _showSpotDetails(spot),
                           child: Container(
                             decoration: BoxDecoration(
+                              color: Colors.white,
                               shape: BoxShape.circle,
-                              gradient: RadialGradient(
-                                colors: [
-                                  Colors.blueAccent.withValues(alpha: 0.8),
-                                  Colors.blueAccent.withValues(alpha: 0.1),
-                                  Colors.transparent,
-                                ],
-                                stops: const [0.2, 0.5, 1.0],
-                              ),
-                            ),
-                            child: Center(
-                              child: Container(
-                                width: 10,
-                                height: 10,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.blueAccent, width: 2),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.blueAccent.withValues(alpha: 0.5),
-                                      blurRadius: 5,
-                                      spreadRadius: 2,
-                                    ),
-                                  ],
+                              border: Border.all(color: const Color(0xFF1A1A1A), width: 3),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.3),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
                                 ),
-                              ),
+                              ],
+                            ),
+                            child: const Center(
+                              child: Icon(Icons.skateboarding, size: 15, color: Color(0xFF1A1A1A)),
                             ),
                           ),
                         ),
@@ -263,12 +250,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         markers: [
                           Marker(
                             point: _currentPosition!,
-                            width: 40,
-                            height: 40,
-                            child: const Icon(
-                              Icons.my_location,
-                              color: Colors.blueAccent,
-                              size: 30,
+                            width: 20,
+                            height: 20,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.blueAccent,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white, width: 3),
+                              ),
                             ),
                           ),
                         ],
@@ -283,10 +272,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: FloatingActionButton.extended(
                       heroTag: 'addTrick',
                       onPressed: _navigateToAddTrick,
-                      backgroundColor: Colors.blueAccent,
+                      backgroundColor: const Color(0xFF1A1A1A),
                       foregroundColor: Colors.white,
                       icon: const Icon(Icons.add),
-                      label: const Text('AJOUTER UN TRICK'),
+                      label: const Text('AJOUTER UN TRICK', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: -0.5)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     ),
                   ),
                 ),
@@ -299,6 +289,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         heroTag: 'recenter',
                         mini: true,
                         onPressed: _recenter,
+                        backgroundColor: Colors.white,
+                        foregroundColor: const Color(0xFF1A1A1A),
                         child: const Icon(Icons.gps_fixed),
                       ),
                       const SizedBox(height: 8),
@@ -306,6 +298,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         heroTag: 'zoomIn',
                         mini: true,
                         onPressed: _zoomIn,
+                        backgroundColor: Colors.white,
+                        foregroundColor: const Color(0xFF1A1A1A),
                         child: const Icon(Icons.add),
                       ),
                       const SizedBox(height: 8),
@@ -313,6 +307,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         heroTag: 'zoomOut',
                         mini: true,
                         onPressed: _zoomOut,
+                        backgroundColor: Colors.white,
+                        foregroundColor: const Color(0xFF1A1A1A),
                         child: const Icon(Icons.remove),
                       ),
                     ],

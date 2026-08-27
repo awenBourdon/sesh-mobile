@@ -11,45 +11,35 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-  bool isLogin = true;
-  bool isLoading = false;
-  String? errorMessage;
-
   final _emailController = TextEditingController();
-  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _usernameController = TextEditingController();
+  bool _isLogin = true;
+  bool _isLoading = false;
 
   Future<void> _submit() async {
-    setState(() {
-      isLoading = true;
-      errorMessage = null;
-    });
-
-    final email = _emailController.text;
-    final password = _passwordController.text;
-    final username = _usernameController.text;
-
-    bool success = false;
-
-    if (isLogin) {
-      success = await AuthService.login(email, password);
+    setState(() => _isLoading = true);
+    bool success;
+    if (_isLogin) {
+      success = await AuthService.login(_emailController.text, _passwordController.text);
     } else {
-      success = await AuthService.register(email, username, password);
+      success = await AuthService.register(
+        _emailController.text,
+        _usernameController.text,
+        _passwordController.text,
+      );
     }
-
-    setState(() {
-      isLoading = false;
-    });
 
     if (success) {
       widget.onAuthSuccess();
     } else {
-      setState(() {
-        errorMessage = isLogin
-            ? 'Identifiants invalides ou erreur serveur'
-            : 'Erreur lors de la création du compte';
-      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Une erreur est survenue.')),
+        );
+      }
     }
+    setState(() => _isLoading = false);
   }
 
   @override
@@ -57,88 +47,49 @@ class _AuthScreenState extends State<AuthScreen> {
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 30),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Icon(
-                Icons.lock_outline_rounded,
-                size: 72,
-                color: Theme.of(context).primaryColor,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                isLogin ? 'Connexion' : 'Créer un compte',
+              const Icon(Icons.skateboarding, size: 80, color: Color(0xFF1A1A1A)),
+              const SizedBox(height: 20),
+              const Text(
+                'SESH',
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 48, fontWeight: FontWeight.w900, letterSpacing: -2),
               ),
-              const SizedBox(height: 24),
-              if (errorMessage != null) ...[
-                Text(
-                  errorMessage!,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.red),
-                ),
-                const SizedBox(height: 12),
-              ],
+              const SizedBox(height: 40),
               TextField(
                 controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.email_outlined),
-                ),
+                decoration: const InputDecoration(labelText: 'EMAIL'),
                 keyboardType: TextInputType.emailAddress,
               ),
-              const SizedBox(height: 16),
-              if (!isLogin) ...[
+              if (!_isLogin) ...[
+                const SizedBox(height: 15),
                 TextField(
                   controller: _usernameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nom d\'utilisateur',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.person_outline),
-                  ),
+                  decoration: const InputDecoration(labelText: 'PSEUDO'),
                 ),
-                const SizedBox(height: 16),
               ],
+              const SizedBox(height: 15),
               TextField(
                 controller: _passwordController,
-                decoration: const InputDecoration(
-                  labelText: 'Mot de passe',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.lock_outline),
-                ),
+                decoration: const InputDecoration(labelText: 'MOT DE PASSE'),
                 obscureText: true,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 30),
               ElevatedButton(
-                onPressed: isLoading ? null : _submit,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: isLoading
-                    ? const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-                    : Text(isLogin ? 'Se connecter' : 'S\'inscrire',
-                    style: const TextStyle(fontSize: 16)),
+                onPressed: _isLoading ? null : _submit,
+                child: _isLoading 
+                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : Text(_isLogin ? 'SE CONNECTER' : "S'INSCRIRE"),
               ),
-              const SizedBox(height: 12),
               TextButton(
-                onPressed: () {
-                  setState(() {
-                    isLogin = !isLogin;
-                    errorMessage = null;
-                  });
-                },
+                onPressed: () => setState(() => _isLogin = !_isLogin),
                 child: Text(
-                  isLogin
-                      ? 'Pas de compte ? Inscrivez-vous'
-                      : 'Déjà un compte ? Connectez-vous',
+                  _isLogin ? "PAS ENCORE DE COMPTE ? S'INSCRIRE" : "DÉJÀ UN COMPTE ? SE CONNECTER",
+                  style: const TextStyle(color: Colors.black54, fontSize: 12, fontWeight: FontWeight.bold),
                 ),
               ),
             ],

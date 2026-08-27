@@ -44,18 +44,22 @@ class _AddTrickScreenState extends State<AddTrickScreen> {
         });
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Vidéo prête ! 🎬')),
+            const SnackBar(content: Text('VIDÉO CHARGÉE 🎬')),
           );
         }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur vidéo : $e')),
+          SnackBar(content: Text('ERREUR VIDÉO : $e')),
         );
       }
     } finally {
-      setState(() => _isSubmitting = false);
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
     }
   }
 
@@ -77,7 +81,7 @@ class _AddTrickScreenState extends State<AddTrickScreen> {
   Future<void> _submit() async {
     if (_descriptionController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Veuillez entrer une description')),
+        const SnackBar(content: Text('DESCRIPTION REQUISE')),
       );
       return;
     }
@@ -96,14 +100,14 @@ class _AddTrickScreenState extends State<AddTrickScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Trick envoyé pour validation ! 🛹')),
+          const SnackBar(content: Text('SESH ENVOYÉE ! 🛹')),
         );
         Navigator.pop(context, true);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur : $e')),
+          SnackBar(content: Text('ERREUR : $e')),
         );
       }
     } finally {
@@ -119,105 +123,89 @@ class _AddTrickScreenState extends State<AddTrickScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ajouter un Trick'),
+        title: const Text('NOUVELLE SESH'),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Localisation',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
+            const Text('OÙ ÇA ?', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12, color: Colors.black45)),
+            const SizedBox(height: 12),
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey[300]!),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+                border: Border.all(color: Colors.black12),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.location_on, color: Colors.blueAccent),
-                  const SizedBox(width: 10),
+                  const Icon(Icons.location_on, color: Color(0xFF1A1A1A)),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      '${_selectedLocation.latitude.toStringAsFixed(6)}, ${_selectedLocation.longitude.toStringAsFixed(6)}',
-                      style: const TextStyle(fontFamily: 'monospace', fontSize: 13),
+                      '${_selectedLocation.latitude.toStringAsFixed(4)}, ${_selectedLocation.longitude.toStringAsFixed(4)}',
+                      style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.bold),
                     ),
                   ),
-                  TextButton.icon(
+                  IconButton(
                     onPressed: _isSubmitting ? null : _pickLocation,
-                    icon: const Icon(Icons.map, size: 18),
-                    label: const Text('MODIFIER'),
+                    icon: const Icon(Icons.edit_location_alt_outlined),
+                    color: const Color(0xFF1A1A1A),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 30),
-            const Text(
-              'Vidéo du trick',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 32),
+            const Text('CLIP VIDÉO', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12, color: Colors.black45)),
+            const SizedBox(height: 12),
             if (_videoUrl == null)
-              OutlinedButton.icon(
+              ElevatedButton.icon(
                 onPressed: _isSubmitting ? null : _pickVideo,
-                icon: const Icon(Icons.videocam),
-                label: const Text('SÉLECTIONNER UNE VIDÉO'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  side: BorderSide(color: Colors.blueAccent.withValues(alpha: 0.5)),
+                icon: const Icon(Icons.videocam_outlined),
+                label: const Text('CHOISIR UNE VIDÉO'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFF0F0F0),
+                  foregroundColor: const Color(0xFF1A1A1A),
+                  minimumSize: const Size(double.infinity, 80),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15), side: const BorderSide(color: Colors.black12)),
                 ),
               )
             else
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.green[50],
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.green[200]!),
+                  color: const Color(0xFFE6FFFA),
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(color: const Color(0xFF38B2AC)),
                 ),
                 child: const Row(
                   children: [
-                    Icon(Icons.check_circle, color: Colors.green),
-                    SizedBox(width: 10),
-                    Text('Vidéo téléchargée avec succès !', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+                    Icon(Icons.check_circle_outline, color: Color(0xFF38B2AC)),
+                    SizedBox(width: 12),
+                    Text('VIDÉO PRÊTE', style: TextStyle(color: Color(0xFF2C7A7B), fontWeight: FontWeight.w900)),
                   ],
                 ),
               ),
-            const SizedBox(height: 30),
-            const Text(
-              'Description',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 32),
+            const Text('DESCRIPTION', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12, color: Colors.black45)),
+            const SizedBox(height: 12),
             TextField(
               controller: _descriptionController,
-              decoration: const InputDecoration(
-                hintText: 'Ex: Kickflip sur les 3 marches',
-                border: OutlineInputBorder(),
-              ),
+              decoration: const InputDecoration(hintText: 'Ex: Heelflip over the rail'),
               maxLines: 3,
               enabled: !_isSubmitting,
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 48),
             ElevatedButton(
               onPressed: _isSubmitting ? null : _submit,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 15),
+                minimumSize: const Size(double.infinity, 65),
               ),
               child: _isSubmitting
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                    )
-                  : const Text('ENVOYER POUR VALIDATION', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ? const SizedBox(height: 25, width: 25, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3))
+                  : const Text('PUBLIER LE TRICK'),
             ),
           ],
         ),

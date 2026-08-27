@@ -45,7 +45,13 @@ class _TrickDetailScreenState extends State<TrickDetailScreen> {
         aspectRatio: _videoPlayerController!.value.aspectRatio,
         placeholder: widget.trick.thumbnailUrl != null
             ? Image.network(widget.trick.thumbnailUrl!, fit: BoxFit.cover)
-            : const Center(child: CircularProgressIndicator()),
+            : Container(color: Colors.black),
+        materialProgressColors: ChewieProgressColors(
+          playedColor: Colors.white,
+          handleColor: Colors.white,
+          backgroundColor: Colors.white24,
+          bufferedColor: Colors.white10,
+        ),
       );
 
       setState(() => _isLoading = false);
@@ -64,85 +70,75 @@ class _TrickDetailScreenState extends State<TrickDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: const Color(0xFF0B0F17),
       appBar: AppBar(
-        title: Text(widget.trick.description ?? 'Trick'),
+        title: Text(widget.trick.description?.toUpperCase() ?? 'TRICK'),
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
       ),
       body: Column(
         children: [
-          // Zone Vidéo
           Expanded(
             flex: 3,
             child: Center(
               child: _isLoading
-                  ? const CircularProgressIndicator(color: Colors.blueAccent)
+                  ? const CircularProgressIndicator(color: Colors.white)
                   : widget.trick.videoUrl != null && _chewieController != null
-                      ? Chewie(controller: _chewieController!)
-                      : const Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.videocam_off, size: 64, color: Colors.grey),
-                            SizedBox(height: 10),
-                            Text('Pas de vidéo disponible', style: TextStyle(color: Colors.grey)),
-                          ],
-                        ),
+                      ? AspectRatio(
+                          aspectRatio: _videoPlayerController!.value.aspectRatio,
+                          child: Chewie(controller: _chewieController!),
+                        )
+                      : const Icon(Icons.videocam_off, size: 64, color: Colors.white24),
             ),
           ),
-          // Zone Infos
           Expanded(
             flex: 2,
             child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(24),
               decoration: const BoxDecoration(
-                color: Color(0xFF1A1F2E),
+                color: Colors.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.trick.description ?? 'Pas de description',
-                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+                    widget.trick.description?.toUpperCase() ?? 'SANS DESCRIPTION',
+                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: -1),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
                   Row(
                     children: [
-                      const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
+                      const Icon(Icons.calendar_today, size: 14, color: Colors.black38),
                       const SizedBox(width: 8),
                       Text(
-                        'Posté le ${DateFormat('dd/MM/yyyy à HH:mm').format(widget.trick.createdAt)}',
-                        style: const TextStyle(color: Colors.grey),
+                        'POSTÉ LE ${DateFormat('dd.MM.yyyy').format(widget.trick.createdAt)}',
+                        style: const TextStyle(color: Colors.black38, fontSize: 12, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 20),
                   if (widget.trick.videoUrl != null)
-                    Center(
-                      child: TextButton.icon(
-                        onPressed: () async {
-                          final url = Uri.parse(widget.trick.videoUrl!);
-                          await launchUrl(url, mode: LaunchMode.externalApplication);
-                        },
-                        icon: const Icon(Icons.open_in_new, color: Colors.blueAccent),
-                        label: const Text(
-                          "La vidéo ne charge pas ? Ouvrir en externe",
-                          style: TextStyle(color: Colors.blueAccent, fontSize: 13),
-                        ),
+                    TextButton(
+                      onPressed: () async {
+                        final url = Uri.parse(widget.trick.videoUrl!);
+                        await launchUrl(url, mode: LaunchMode.externalApplication);
+                      },
+                      style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                      child: const Text(
+                        "PROBLÈME DE LECTURE ? OUVRIR LA VIDÉO",
+                        style: TextStyle(color: Colors.black45, fontSize: 10, decoration: TextDecoration.underline),
                       ),
                     ),
                   const Spacer(),
-                  ElevatedButton.icon(
+                  ElevatedButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.location_on),
-                    label: const Text('VOIR LE SPOT'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size(double.infinity, 50),
+                      backgroundColor: const Color(0xFF1A1A1A),
+                      minimumSize: const Size(double.infinity, 60),
                     ),
+                    child: const Text('RETOUR'),
                   ),
                 ],
               ),
