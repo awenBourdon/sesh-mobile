@@ -78,17 +78,39 @@ class _ExplorerScreenState extends State<ExplorerScreen> {
                           child: Card(
                             elevation: 3,
                             margin: const EdgeInsets.only(bottom: 15),
+                            clipBehavior: Clip.antiAlias,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                ListTile(
-                                  leading: const CircleAvatar(
-                                    backgroundColor: Colors.blueAccent,
-                                    child: Icon(Icons.skateboarding, color: Colors.white),
+                                if (trick.thumbnailUrl != null)
+                                  AspectRatio(
+                                    aspectRatio: 16 / 9,
+                                    child: Image.network(
+                                      trick.thumbnailUrl!,
+                                      fit: BoxFit.cover,
+                                      loadingBuilder: (context, child, loadingProgress) {
+                                        if (loadingProgress == null) return child;
+                                        return Container(
+                                          color: Colors.grey[200],
+                                          child: const Center(child: CircularProgressIndicator()),
+                                        );
+                                      },
+                                      errorBuilder: (context, error, stackTrace) => Container(
+                                        color: Colors.grey[200],
+                                        child: const Center(child: Icon(Icons.error)),
+                                      ),
+                                    ),
                                   ),
+                                ListTile(
+                                  leading: trick.thumbnailUrl == null
+                                      ? const CircleAvatar(
+                                          backgroundColor: Colors.blueAccent,
+                                          child: Icon(Icons.skateboarding, color: Colors.white),
+                                        )
+                                      : null,
                                   title: Text(
                                     trick.description ?? 'Trick sans description',
                                     style: const TextStyle(fontWeight: FontWeight.bold),
@@ -98,19 +120,8 @@ class _ExplorerScreenState extends State<ExplorerScreen> {
                                     style: const TextStyle(fontSize: 12),
                                   ),
                                 ),
-                                if (trick.videoUrl != null)
-                                  const Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.videocam, size: 16, color: Colors.grey),
-                                        SizedBox(width: 5),
-                                        Text('Vidéo disponible', style: TextStyle(color: Colors.grey)),
-                                      ],
-                                    ),
-                                  ),
                                 Padding(
-                                  padding: const EdgeInsets.all(16),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [

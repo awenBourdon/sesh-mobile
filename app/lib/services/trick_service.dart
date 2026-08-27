@@ -19,6 +19,16 @@ class Trick {
     required this.createdAt,
   });
 
+  String? get thumbnailUrl {
+    if (videoUrl == null) return null;
+    // Cloudinary magic:
+    // 1. Force l'extension .jpg pour générer une image
+    // 2. Ajoute des transformations : so_auto (capture automatique de la frame), w_500 (largeur), c_limit (optimisation)
+    return videoUrl!
+        .replaceAll('.mp4', '.jpg')
+        .replaceAll('/video/upload/', '/video/upload/so_auto,w_500,c_limit/');
+  }
+
   factory Trick.fromJson(Map<String, dynamic> json) {
     return Trick(
       id: json['id'],
