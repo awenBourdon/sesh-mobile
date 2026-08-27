@@ -1,17 +1,17 @@
+use axum_extra::extract::cookie::{Cookie, CookieJar};
 use axum::{
-    Form,
     extract::State,
     response::{Html, IntoResponse, Redirect},
+    Form,
 };
-use axum_extra::extract::cookie::{Cookie, CookieJar};
 use serde::Deserialize;
 use std::sync::Arc;
 use uuid::Uuid;
 
-use crate::AppState;
 use crate::modules::auth::dto::LoginDto;
 use crate::modules::auth::service::AuthService;
 use crate::modules::tricks::service::TrickService;
+use crate::AppState;
 
 #[derive(Deserialize)]
 pub struct AdminLoginForm {
@@ -26,7 +26,6 @@ pub struct TrickActionForm {
 }
 
 pub async fn login_page(State(state): State<Arc<AppState>>, jar: CookieJar) -> impl IntoResponse {
-    // Si déjà connecté et admin, redirection vers le dashboard
     let already_logged_in = jar
         .get("admin_token")
         .map(|cookie| {
@@ -42,30 +41,80 @@ pub async fn login_page(State(state): State<Arc<AppState>>, jar: CookieJar) -> i
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Sesh Admin - Login</title>
+            <title>SESH ADMIN - LOGIN</title>
             <style>
-                body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #0b0f17; color: white; }
-                form { background: #1a1f2e; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); width: 300px; }
-                div { margin-bottom: 1rem; }
-                label { display: block; margin-bottom: 0.5rem; color: #a0aec0; }
-                input { width: 100%; padding: 0.5rem; background: #2d3748; border: 1px solid #4a5568; border-radius: 4px; color: white; box-sizing: border-box; }
-                button { width: 100%; padding: 0.75rem; background: #4299e1; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-                button:hover { background: #3182ce; }
-                h2 { text-align: center; margin-top: 0; color: #fff; }
+                body {
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    margin: 0;
+                    background: #F7F7F7;
+                    color: #1A1A1A;
+                }
+                form {
+                    background: white;
+                    padding: 3rem;
+                    border-radius: 24px;
+                    border: 1px solid rgba(0,0,0,0.1);
+                    width: 320px;
+                }
+                .logo {
+                    font-size: 32px;
+                    font-weight: 900;
+                    text-align: center;
+                    letter-spacing: -1.5px;
+                    margin-bottom: 2rem;
+                }
+                .field { margin-bottom: 1.5rem; }
+                label {
+                    display: block;
+                    margin-bottom: 0.5rem;
+                    font-size: 11px;
+                    font-weight: 900;
+                    color: rgba(0,0,0,0.4);
+                }
+                input {
+                    width: 100%;
+                    padding: 0.8rem;
+                    background: #F9F9F9;
+                    border: 1px solid rgba(0,0,0,0.05);
+                    border-radius: 12px;
+                    box-sizing: border-box;
+                    font-size: 14px;
+                    outline: none;
+                }
+                input:focus {
+                    border-color: #1A1A1A;
+                }
+                button {
+                    width: 100%;
+                    padding: 1rem;
+                    background: #1A1A1A;
+                    color: white;
+                    border: none;
+                    border-radius: 20px;
+                    cursor: pointer;
+                    font-weight: 900;
+                    font-size: 14px;
+                    margin-top: 1rem;
+                }
+                button:hover { background: #000; }
             </style>
         </head>
         <body>
             <form action="/admin/login" method="POST">
-                <h2>Sesh Admin</h2>
-                <div>
-                    <label>Email</label>
-                    <input type="email" name="email" required>
+                <div class="logo">SESH</div>
+                <div class="field">
+                    <label>EMAIL</label>
+                    <input type="email" name="email" required placeholder="name@example.com">
                 </div>
-                <div>
-                    <label>Password</label>
+                <div class="field">
+                    <label>PASSWORD</label>
                     <input type="password" name="password" required>
                 </div>
-                <button type="submit">Se connecter</button>
+                <button type="submit">SE CONNECTER</button>
             </form>
         </body>
         </html>
@@ -107,68 +156,131 @@ pub async fn dashboard_page(State(state): State<Arc<AppState>>) -> impl IntoResp
 
     let mut tricks_html = String::new();
     if pending_tricks.is_empty() {
-        tricks_html = "<tr><td colspan='4' style='text-align:center; padding: 20px;'>Aucun trick en attente de validation.</td></tr>".to_string();
+        tricks_html = "<tr><td colspan='4' style='text-align:center; padding: 40px; color: rgba(0,0,0,0.3); font-size: 14px;'>Aucun trick en attente de validation.</td></tr>".to_string();
     } else {
         for trick in pending_tricks {
             tricks_html.push_str(&format!(
                 r#"
                 <tr>
-                    <td>{}</td>
-                    <td>{}</td>
-                    <td>{}</td>
-                    <td>
+                    <td class="date">{}</td>
+                    <td class="desc">{}</td>
+                    <td class="id">{}</td>
+                    <td class="actions">
                         <form action="/admin/trick-action" method="POST" style="display:inline;">
                             <input type="hidden" name="trick_id" value="{}">
-                            <button type="submit" name="action" value="approve" class="btn-approve">Approuver</button>
-                            <button type="submit" name="action" value="reject" class="btn-reject">Rejeter</button>
+                            <button type="submit" name="action" value="approve" class="btn-approve">APPROUVER</button>
+                            <button type="submit" name="action" value="reject" class="btn-reject">REJETER</button>
                         </form>
                     </td>
                 </tr>
                 "#,
-                trick.created_at.unwrap_or_default().format("%d/%m/%Y %H:%M"),
-                trick.description.as_deref().unwrap_or("Sans description"),
+                trick.created_at.unwrap_or_default().format("%d.%m.%y"),
+                trick.description.as_deref().unwrap_or("SANS DESCRIPTION").to_uppercase(),
                 trick.spot_id,
                 trick.id
             ));
         }
     }
 
-    Html(format!(
-        r#"
+    Html(format!(r#"
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Sesh Admin - Dashboard</title>
+            <title>SESH ADMIN - DASHBOARD</title>
             <style>
-                body {{ font-family: sans-serif; margin: 0; background: #0b0f17; color: white; }}
-                nav {{ background: #1a1f2e; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2d3748; }}
-                .container {{ padding: 2rem; max-width: 1000px; margin: 0 auto; }}
-                h1 {{ color: #fff; }}
-                table {{ width: 100%; border-collapse: collapse; background: #1a1f2e; border-radius: 8px; overflow: hidden; margin-top: 20px; }}
-                th, td {{ padding: 12px 15px; text-align: left; border-bottom: 1px solid #2d3748; }}
-                th {{ background: #2d3748; color: #a0aec0; text-transform: uppercase; font-size: 12px; }}
-                .btn-approve {{ background: #48bb78; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px; }}
-                .btn-reject {{ background: #f56565; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }}
-                a {{ color: #4299e1; text-decoration: none; }}
+                body {{
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                    margin: 0;
+                    background: #F7F7F7;
+                    color: #1A1A1A;
+                }}
+                nav {{
+                    background: white;
+                    padding: 1.5rem 3rem;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    border-bottom: 1px solid rgba(0,0,0,0.05);
+                }}
+                .logo {{ font-weight: 900; font-size: 24px; letter-spacing: -1px; }}
+                .container {{ padding: 3rem; max-width: 1100px; margin: 0 auto; }}
+                h1 {{ font-weight: 900; font-size: 32px; letter-spacing: -1px; margin-bottom: 2rem; }}
+
+                table {{
+                    width: 100%;
+                    border-collapse: collapse;
+                    background: white;
+                    border-radius: 24px;
+                    overflow: hidden;
+                    border: 1px solid rgba(0,0,0,0.05);
+                }}
+                th, td {{ padding: 20px 24px; text-align: left; }}
+                th {{
+                    background: #F9F9F9;
+                    color: rgba(0,0,0,0.4);
+                    text-transform: uppercase;
+                    font-size: 11px;
+                    font-weight: 900;
+                    letter-spacing: 0.5px;
+                }}
+                tr:not(:last-child) td {{ border-bottom: 1px solid rgba(0,0,0,0.03); }}
+
+                .desc {{ font-weight: 800; font-size: 15px; }}
+                .date, .id {{ font-family: monospace; font-size: 13px; color: rgba(0,0,0,0.5); }}
+
+                .btn-approve {{
+                    background: #1A1A1A;
+                    color: white;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 12px;
+                    cursor: pointer;
+                    font-weight: 900;
+                    font-size: 11px;
+                }}
+                .btn-reject {{
+                    background: white;
+                    color: rgba(0,0,0,0.3);
+                    border: 1px solid rgba(0,0,0,0.1);
+                    padding: 8px 16px;
+                    border-radius: 12px;
+                    cursor: pointer;
+                    font-weight: 900;
+                    font-size: 11px;
+                    margin-left: 8px;
+                }}
+                .btn-reject:hover {{ color: #FF4D4D; border-color: #FF4D4D; }}
+
+                .nav-links a {{
+                    color: #1A1A1A;
+                    text-decoration: none;
+                    font-weight: 800;
+                    font-size: 13px;
+                    margin-right: 2rem;
+                }}
+                .btn-logout {{
+                    color: rgba(0,0,0,0.4) !important;
+                    font-weight: 700 !important;
+                }}
             </style>
         </head>
         <body>
             <nav>
-                <div style="font-weight: bold; font-size: 20px;">SESH <span style="color: #4299e1;">ADMIN</span></div>
-                <div>
-                    <a href="/graphql" target="_blank" style="margin-right: 20px;">GraphQL</a>
-                    <a href="/admin/logout" style="background: #e53e3e; color: white; padding: 5px 15px; border-radius: 4px;">Déconnexion</a>
+                <div class="logo">SESH <span style="color: rgba(0,0,0,0.2)">ADMIN</span></div>
+                <div class="nav-links">
+                    <a href="/graphql" target="_blank">GRAPHQL</a>
+                    <a href="/admin/logout" class="btn-logout">DÉCONNEXION</a>
                 </div>
             </nav>
             <div class="container">
-                <h1>Tricks en attente de validation</h1>
+                <h1>MODÉRATION DES TRICKS</h1>
                 <table>
                     <thead>
                         <tr>
-                            <th>Date</th>
-                            <th>Description</th>
-                            <th>ID Spot</th>
-                            <th>Actions</th>
+                            <th>DATE</th>
+                            <th>DESCRIPTION</th>
+                            <th>ID SPOT</th>
+                            <th>ACTIONS</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -178,9 +290,7 @@ pub async fn dashboard_page(State(state): State<Arc<AppState>>) -> impl IntoResp
             </div>
         </body>
         </html>
-    "#,
-        tricks_html
-    ))
+    "#, tricks_html))
 }
 
 pub async fn trick_action_handler(

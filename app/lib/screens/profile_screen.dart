@@ -29,6 +29,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final isAdmin = await AuthService.isAdmin();
     final avatarUrl = await AuthService.getAvatarUrl();
 
+    if (!mounted) return;
+
     setState(() {
       _username = username;
       _email = email;
@@ -51,87 +53,96 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(child: CircularProgressIndicator(color: Color(0xFF1A1A1A))),
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mon Profil'),
-        centerTitle: true,
+        title: const Text('MON COMPTE'),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            CircleAvatar(
-              radius: 50,
-              backgroundColor: Colors.blueAccent,
-              backgroundImage: _avatarUrl != null ? NetworkImage(_avatarUrl!) : null,
-              child: _avatarUrl == null
-                  ? Text(
-                      _getInitials(_username),
-                      style: const TextStyle(fontSize: 32, color: Colors.white, fontWeight: FontWeight.bold),
-                    )
-                  : null,
+            Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFF1A1A1A), width: 2),
+              ),
+              child: CircleAvatar(
+                radius: 60,
+                backgroundColor: const Color(0xFFF0F0F0),
+                backgroundImage: _avatarUrl != null ? NetworkImage(_avatarUrl!) : null,
+                child: _avatarUrl == null
+                    ? Text(
+                        _getInitials(_username),
+                        style: const TextStyle(fontSize: 40, color: Color(0xFF1A1A1A), fontWeight: FontWeight.w900),
+                      )
+                    : null,
+              ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             Text(
-              _username ?? 'Utilisateur',
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              _username?.toUpperCase() ?? 'UTILISATEUR',
+              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, letterSpacing: -1),
             ),
             if (_isAdmin)
               Container(
-                margin: const EdgeInsets.only(top: 8),
+                margin: const EdgeInsets.only(top: 12),
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.amber,
-                  borderRadius: BorderRadius.circular(20),
+                  color: const Color(0xFF1A1A1A),
+                  borderRadius: BorderRadius.circular(4),
                 ),
                 child: const Text(
-                  'Administrateur',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                  'ADMIN',
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
                 ),
               ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             Text(
               _email ?? '',
-              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             ),
-            const SizedBox(height: 40),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.history),
-              title: const Text('Mes Seshs'),
-              subtitle: const Text('Historique de vos tricks (Bientôt)'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Paramètres'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () {},
-            ),
-            const SizedBox(height: 40),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () async {
-                  await AuthService.logout();
-                  widget.onLogout();
-                },
-                icon: const Icon(Icons.logout),
-                label: const Text('Déconnexion'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                ),
+            const SizedBox(height: 48),
+            _buildMenuTile(Icons.history, 'MES SESHS', 'Historique des tricks'),
+            _buildMenuTile(Icons.settings_outlined, 'PARAMÈTRES', 'Préférences et compte'),
+            const SizedBox(height: 48),
+            ElevatedButton(
+              onPressed: () async {
+                await AuthService.logout();
+                widget.onLogout();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: const Color(0xFF1A1A1A),
+                side: const BorderSide(color: Colors.black12, width: 1),
+                minimumSize: const Size(double.infinity, 60),
               ),
+              child: const Text('DÉCONNEXION'),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildMenuTile(IconData icon, String title, String subtitle) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.black12),
+      ),
+      child: ListTile(
+        leading: Icon(icon, color: const Color(0xFF1A1A1A)),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
+        subtitle: Text(subtitle, style: const TextStyle(fontSize: 12)),
+        trailing: const Icon(Icons.chevron_right, color: Colors.black26),
+        onTap: () {},
       ),
     );
   }
