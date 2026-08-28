@@ -3,6 +3,8 @@ import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/trick_service.dart';
+import '../services/social_service.dart';
+import '../widgets/comments_sheet.dart';
 import 'package:intl/intl.dart';
 
 class TrickDetailScreen extends StatefulWidget {
@@ -18,11 +20,41 @@ class _TrickDetailScreenState extends State<TrickDetailScreen> {
   VideoPlayerController? _videoPlayerController;
   ChewieController? _chewieController;
   bool _isLoading = true;
+  late int _likesCount;
+  late bool _isLikedByMe;
 
   @override
   void initState() {
     super.initState();
+    _likesCount = widget.trick.likesCount;
+    _isLikedByMe = widget.trick.isLikedByMe;
     _initializePlayer();
+  }
+
+  Future<void> _handleLike() async {
+    setState(() {
+      if (_isLikedByMe) {
+        _likesCount--;
+        _isLikedByMe = false;
+      } else {
+        _likesCount++;
+        _isLikedByMe = true;
+      }
+    });
+
+    try {
+      await SocialService.toggleLike(widget.trick.id);
+    } catch (e) {
+      setState(() {
+        if (_isLikedByMe) {
+          _likesCount--;
+          _isLikedByMe = false;
+        } else {
+          _likesCount++;
+          _isLikedByMe = true;
+        }
+      });
+    }
   }
 
   Future<void> _initializePlayer() async {
@@ -118,6 +150,31 @@ class _TrickDetailScreenState extends State<TrickDetailScreen> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      _buildSocialAction(
+                        _isLikedByMe ? Icons.favorite : Icons.favorite_border,
+                        '$_likesCount',
+                        _isLikedByMe ? Colors.redAccent : Colors.black87,
+                        _handleLike,
+                      ),
+                      const SizedBox(width: 24),
+                      _buildSocialAction(
+                        Icons.chat_bubble_outline,
+                        '${widget.trick.commentsCount}',
+                        Colors.black87,
+                        () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (context) => CommentsSheet(trickId: widget.trick.id),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 20),
                   if (widget.trick.videoUrl != null)
                     TextButton(
@@ -143,6 +200,22 @@ class _TrickDetailScreenState extends State<TrickDetailScreen> {
                 ],
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSocialAction(IconData icon, String label, Color color, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Row(
+        children: [
+          Icon(icon, color: color, size: 24),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 16),
           ),
         ],
       ),

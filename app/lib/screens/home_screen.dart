@@ -113,6 +113,19 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 20),
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.favorite, size: 16, color: spot.isLikedByMe ? Colors.redAccent : Colors.grey),
+                  const SizedBox(width: 4),
+                  Text('${spot.likesCount}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(width: 20),
+                  const Icon(Icons.chat_bubble_outline, size: 16, color: Colors.grey),
+                  const SizedBox(width: 4),
+                  Text('${spot.commentsCount}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   TextButton(

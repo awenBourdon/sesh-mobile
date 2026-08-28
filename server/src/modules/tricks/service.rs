@@ -15,10 +15,8 @@ impl TrickService {
         user_id: Uuid,
         input: CreateTrickInput,
     ) -> Result<TrickModel, AppError> {
-        // 1. Délégation de la logique de spot au service dédié
         let spot = SpotService::find_or_create_spot(pool, input.latitude, input.longitude).await?;
 
-        // 2. Persistance via le repository
         TrickRepository::create(pool, user_id, spot.id, input.description, input.video_url).await
     }
 

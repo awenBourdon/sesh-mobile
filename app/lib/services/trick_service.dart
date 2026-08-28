@@ -9,6 +9,9 @@ class Trick {
   final String? description;
   final String? videoUrl;
   final DateTime createdAt;
+  final int likesCount;
+  final int commentsCount;
+  final bool isLikedByMe;
 
   Trick({
     required this.id,
@@ -17,6 +20,9 @@ class Trick {
     this.description,
     this.videoUrl,
     required this.createdAt,
+    this.likesCount = 0,
+    this.commentsCount = 0,
+    this.isLikedByMe = false,
   });
 
   String? get thumbnailUrl {
@@ -34,6 +40,9 @@ class Trick {
       description: json['description'],
       videoUrl: json['videoUrl'],
       createdAt: DateTime.parse(json['createdAt']),
+      likesCount: json['likesCount'] ?? 0,
+      commentsCount: json['commentsCount'] ?? 0,
+      isLikedByMe: json['isLikedByMe'] ?? false,
     );
   }
 }
@@ -64,6 +73,9 @@ class TrickService {
           description
           videoUrl
           createdAt
+          likesCount
+          commentsCount
+          isLikedByMe
         }
       }
     ''';
