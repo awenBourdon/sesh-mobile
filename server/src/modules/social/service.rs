@@ -7,7 +7,6 @@ use uuid::Uuid;
 pub struct SocialService;
 
 impl SocialService {
-    // LIKES
     pub async fn toggle_like(
         pool: &PgPool,
         user_id: Uuid,
@@ -17,10 +16,10 @@ impl SocialService {
 
         if already_liked {
             SocialRepository::remove_like(pool, user_id, trick_id).await?;
-            Ok(false) // Liked removed
+            Ok(false)
         } else {
             SocialRepository::add_like(pool, user_id, trick_id).await?;
-            Ok(true) // Like added
+            Ok(true)
         }
     }
 
@@ -54,12 +53,10 @@ impl SocialService {
         user_id: Uuid,
         comment_id: Uuid,
     ) -> Result<bool, AppError> {
-        // 1. On cherche le commentaire
         let comment = SocialRepository::find_comment_by_id(pool, comment_id)
             .await?
             .ok_or_else(|| AppError::BadRequest("Comment not found".into()))?;
 
-        // 2. Vérification de sécurité : Seul le propriétaire (ou un futur admin) peut supprimer
         if comment.user_id != user_id {
             return Err(AppError::Unauthorized(
                 "You can only delete your own comments".into(),
@@ -76,7 +73,6 @@ impl SocialService {
         SocialRepository::find_comments_by_trick(pool, trick_id).await
     }
 
-    // SPOTS
     pub async fn toggle_spot_like(
         pool: &PgPool,
         user_id: Uuid,
@@ -128,9 +124,6 @@ impl SocialService {
         user_id: Uuid,
         comment_id: Uuid,
     ) -> Result<bool, AppError> {
-        // Note: SocialRepository::find_comment_by_id cherche dans trick_comments.
-        // On devrait utiliser une méthode qui cherche dans spot_comments.
-        // Mais pour rester simple et cohérent avec ton souhait, je vais corriger le Repository.
         SocialRepository::delete_spot_comment(pool, user_id, comment_id).await
     }
 }

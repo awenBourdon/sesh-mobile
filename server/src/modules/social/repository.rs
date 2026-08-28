@@ -6,7 +6,6 @@ use uuid::Uuid;
 pub struct SocialRepository;
 
 impl SocialRepository {
-    // LIKES
     pub async fn add_like(pool: &PgPool, user_id: Uuid, trick_id: Uuid) -> Result<(), AppError> {
         sqlx::query(
             "INSERT INTO trick_likes (user_id, trick_id) VALUES ($1, $2) ON CONFLICT DO NOTHING",
@@ -53,7 +52,6 @@ impl SocialRepository {
         Ok(row.is_some())
     }
 
-    // COMMENTS
     pub async fn add_comment(
         pool: &PgPool,
         user_id: Uuid,
@@ -108,7 +106,6 @@ impl SocialRepository {
         .map_err(|e| AppError::InternalServerError(e.to_string()))
     }
 
-    // SPOT LIKES
     pub async fn add_spot_like(
         pool: &PgPool,
         user_id: Uuid,
@@ -163,7 +160,6 @@ impl SocialRepository {
         Ok(row.0)
     }
 
-    // SPOT COMMENTS
     pub async fn add_spot_comment(
         pool: &PgPool,
         user_id: Uuid,

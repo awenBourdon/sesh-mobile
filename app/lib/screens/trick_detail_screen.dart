@@ -45,7 +45,6 @@ class _TrickDetailScreenState extends State<TrickDetailScreen> {
     try {
       await SocialService.toggleLike(widget.trick.id);
     } catch (e) {
-      // Rollback en cas d'erreur
       setState(() {
         if (_isLikedByMe) {
           _likesCount--;

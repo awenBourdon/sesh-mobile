@@ -40,7 +40,7 @@ impl TrickModel {
 
         let auth_user = match ctx.data::<AuthUser>() {
             Ok(u) => u,
-            Err(_) => return false, // Pas connecté = pas liké
+            Err(_) => return false,
         };
 
         SocialService::is_trick_liked_by_user(&state.pool, auth_user.id, self.id)

@@ -74,22 +74,18 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
   }
 
   Future<void> _deleteComment(String commentId) async {
-    debugPrint('🗑️ SESH_SOCIAL: Tentative de suppression du commentaire spot: $commentId');
     try {
       final success = await SocialService.deleteSpotComment(commentId);
       if (success) {
-        debugPrint('✅ SESH_SOCIAL: Suppression réussie sur le serveur');
         setState(() {
           _comments.removeWhere((c) => c.id == commentId);
         });
       } else {
-        debugPrint('❌ SESH_SOCIAL: Le serveur a renvoyé un échec (false)');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Impossible de supprimer ce commentaire.')));
         }
       }
     } catch (e) {
-      debugPrint('❌ SESH_SOCIAL: Erreur réseau/GraphQL: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur : $e')));
       }
