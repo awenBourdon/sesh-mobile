@@ -7,6 +7,7 @@ class AuthService {
   static const _storage = FlutterSecureStorage();
   static const _tokenKey = 'jwt_token';
   static const _isAdminKey = 'is_admin';
+  static const _userIdKey = 'user_id';
   static const _usernameKey = 'username';
   static const _emailKey = 'email';
   static const _avatarKey = 'avatar_url';
@@ -17,6 +18,10 @@ class AuthService {
 
   static Future<String?> getUsername() async {
     return await _storage.read(key: _usernameKey);
+  }
+
+  static Future<String?> getUserId() async {
+    return await _storage.read(key: _userIdKey);
   }
 
   static Future<String?> getEmail() async {
@@ -47,6 +52,7 @@ class AuthService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         await _storage.write(key: _tokenKey, value: data['token']);
+        await _storage.write(key: _userIdKey, value: data['user_id']);
         await _storage.write(key: _isAdminKey, value: data['is_admin'].toString());
         await _storage.write(key: _usernameKey, value: data['username']);
         await _storage.write(key: _emailKey, value: data['email']);
@@ -77,6 +83,7 @@ class AuthService {
       if (response.statusCode == 201) {
         final data = jsonDecode(response.body);
         await _storage.write(key: _tokenKey, value: data['token']);
+        await _storage.write(key: _userIdKey, value: data['user_id']);
         await _storage.write(key: _isAdminKey, value: data['is_admin'].toString());
         await _storage.write(key: _usernameKey, value: data['username']);
         await _storage.write(key: _emailKey, value: data['email']);
@@ -93,6 +100,7 @@ class AuthService {
 
   static Future<void> logout() async {
     await _storage.delete(key: _tokenKey);
+    await _storage.delete(key: _userIdKey);
     await _storage.delete(key: _isAdminKey);
     await _storage.delete(key: _usernameKey);
     await _storage.delete(key: _emailKey);

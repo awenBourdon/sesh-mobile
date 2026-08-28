@@ -128,6 +128,39 @@ class _ExplorerScreenState extends State<ExplorerScreen> {
                                         ),
                                       ),
                                     ),
+                                    // Compteurs Sociaux (Haut droite)
+                                    Positioned(
+                                      top: 12,
+                                      right: 12,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: Colors.black.withValues(alpha: 0.6),
+                                          borderRadius: BorderRadius.circular(15),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              trick.isLikedByMe ? Icons.favorite : Icons.favorite_border,
+                                              color: trick.isLikedByMe ? Colors.redAccent : Colors.white,
+                                              size: 14,
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              '${trick.likesCount}',
+                                              style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            const Icon(Icons.chat_bubble_outline, color: Colors.white, size: 14),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              '${trick.commentsCount}',
+                                              style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
                                     // Informations
                                     Positioned(
                                       bottom: 0,

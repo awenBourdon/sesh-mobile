@@ -12,6 +12,7 @@ use config::Config;
 use dotenvy::dotenv;
 use modules::admin::admin_routes;
 use modules::auth::auth_routes;
+use modules::social::resolver::{SocialMutation, SocialQuery};
 use modules::spots::resolver::{SpotsMutation, SpotsQuery};
 use modules::tricks::resolver::{TricksMutation, TricksQuery};
 use modules::users::resolver::UsersQuery;
@@ -21,10 +22,10 @@ use std::sync::Arc;
 use tower_http::cors::CorsLayer;
 
 #[derive(MergedObject, Default)]
-pub struct QueryRoot(SpotsQuery, TricksQuery, UsersQuery);
+pub struct QueryRoot(SpotsQuery, TricksQuery, UsersQuery, SocialQuery);
 
 #[derive(MergedObject, Default)]
-pub struct MutationRoot(SpotsMutation, TricksMutation);
+pub struct MutationRoot(SpotsMutation, TricksMutation, SocialMutation);
 
 pub type AppSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 
