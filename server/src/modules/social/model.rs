@@ -14,6 +14,7 @@ pub struct CommentModel {
     pub updated_at: DateTime<Utc>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct LikeModel {
     pub user_id: Uuid,
