@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../services/trick_service.dart';
 import '../services/social_service.dart';
 import '../widgets/comments_sheet.dart';
+import 'spot_detail_screen.dart';
 import 'package:intl/intl.dart';
 
 class TrickDetailScreen extends StatefulWidget {
@@ -189,13 +190,22 @@ class _TrickDetailScreenState extends State<TrickDetailScreen> {
                       ),
                     ),
                   const Spacer(),
-                  ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SpotDetailScreen(spotId: widget.trick.spotId),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.location_on, size: 20),
+                    label: const Text('VOIR LE SPOT'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF1A1A1A),
+                      foregroundColor: Colors.white,
                       minimumSize: const Size(double.infinity, 60),
                     ),
-                    child: const Text('RETOUR'),
                   ),
                 ],
               ),

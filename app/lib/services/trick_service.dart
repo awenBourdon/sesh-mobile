@@ -96,6 +96,40 @@ class TrickService {
     return tricksJson.map((json) => Trick.fromJson(json)).toList();
   }
 
+  static Future<List<Trick>> fetchTricksBySpot(String spotId) async {
+    const String getTricksBySpotQuery = r'''
+      query GetTricksBySpot($spotId: UUID!) {
+        getTricksBySpot(spotId: $spotId) {
+          id
+          userId
+          spotId
+          description
+          videoUrl
+          createdAt
+          likesCount
+          commentsCount
+          isLikedByMe
+        }
+      }
+    ''';
+
+    final client = await _getClient();
+    final QueryOptions options = QueryOptions(
+      document: gql(getTricksBySpotQuery),
+      variables: {'spotId': spotId},
+      fetchPolicy: FetchPolicy.networkOnly,
+    );
+
+    final QueryResult result = await client.query(options);
+
+    if (result.hasException) {
+      throw Exception(result.exception.toString());
+    }
+
+    final List<dynamic> tricksJson = result.data?['getTricksBySpot'] ?? [];
+    return tricksJson.map((json) => Trick.fromJson(json)).toList();
+  }
+
   static Future<Trick> createTrick({
     required double latitude,
     required double longitude,

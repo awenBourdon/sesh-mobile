@@ -8,6 +8,8 @@ use uuid::Uuid;
 use crate::AppState;
 use crate::core::auth::AuthUser;
 use crate::modules::social::service::SocialService;
+use crate::modules::spots::model::SpotModel;
+use crate::modules::spots::service::SpotService;
 
 #[derive(Debug, Clone, FromRow, Serialize, Deserialize, SimpleObject)]
 #[graphql(complex)]
@@ -55,5 +57,13 @@ impl TrickModel {
             .map(|comments| comments.len() as i64)
             .map_err(|e| async_graphql::Error::new(e.to_string()))?;
         Ok(count)
+    }
+
+    async fn spot(&self, ctx: &Context<'_>) -> async_graphql::Result<Option<SpotModel>> {
+        let state = ctx.data::<Arc<AppState>>()?;
+        let spot = SpotService::get_spot_by_id(&state.pool, self.spot_id)
+            .await
+            .map_err(|e| async_graphql::Error::new(e.to_string()))?;
+        Ok(spot)
     }
 }
