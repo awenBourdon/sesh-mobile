@@ -129,6 +129,12 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
     try {
       await SocialService.toggleSpotLike(_spot!.id);
     } catch (e) {
+      debugPrint('❌ SESH_LIKE_ERROR (Spot): $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur Like Spot: $e')),
+        );
+      }
       setState(() {
         _spot = Spot(
           id: _spot!.id,

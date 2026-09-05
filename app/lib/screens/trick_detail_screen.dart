@@ -46,6 +46,12 @@ class _TrickDetailScreenState extends State<TrickDetailScreen> {
     try {
       await SocialService.toggleLike(widget.trick.id);
     } catch (e) {
+      debugPrint('❌ SESH_LIKE_ERROR (Trick): $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur Like: $e')),
+        );
+      }
       setState(() {
         if (_isLikedByMe) {
           _likesCount--;
